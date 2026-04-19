@@ -1,0 +1,3073 @@
+<!DOCTYPE html>
+<html lang="en" class="lenis lenis-scrolling"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EquityLab — Investment Tools for UK Retail Investors</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="EquityLab%20vs%206_files/css2.css" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger + Lenis (loaded from CDN — was previously pointing to a local _files folder that 404'd) -->
+<script src="EquityLab%20vs%206_files/gsap.min.js"></script>
+<script src="EquityLab%20vs%206_files/ScrollTrigger.min.js"></script>
+<script src="EquityLab%20vs%206_files/lenis.min.js"></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+}
+
+body {
+  background: #0F1825;
+  color: #fff;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+:root {
+  --navy: #1B2A4A;
+  --navyl: #2E4070;
+  --navyd: #111C33;
+  --navydd: #0F1825;
+  --gold: #C9A84C;
+  --goldl: #E2C97E;
+  --goldm: rgba(201,168,76,0.15);
+  --green: #4AC47B;
+  --red: #F87171;
+  --amber: #FB923C;
+  --blue: #60A5FA;
+  --muted: rgba(255,255,255,0.45);
+  --faint: rgba(255,255,255,0.08);
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+#topnav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(15,24,37,0.93);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--faint);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+}
+
+.navlogo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.navlogo-mark {
+  width: 22px;
+  height: 22px;
+}
+
+.navlogo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.navlinks {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.navlink {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 0.2s;
+}
+
+.navlink:hover {
+  color: #fff;
+}
+
+.navcta {
+  background: var(--gold);
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+
+.navcta:hover {
+  background: var(--goldl);
+}
+
+/* ============================================
+   TICKER RIBBON
+   ============================================ */
+#ticker-ribbon {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba(27,42,74,0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--faint);
+  height: 36px;
+  overflow: hidden;
+}
+
+.ticker-track {
+  display: flex;
+  gap: 40px;
+  animation: ticker-scroll 45s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 10px 0;
+}
+
+.ticker-symbol {
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+}
+
+.ticker-price {
+  color: #fff;
+  font-weight: 600;
+}
+
+.ticker-change {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ticker-change.up {
+  color: var(--green);
+}
+
+.ticker-change.down {
+  color: var(--red);
+}
+
+/* ============================================
+   GRADIENT MESH BACKGROUND
+   ============================================ */
+.gradient-mesh {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.mesh-gradient {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(201,168,76,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(96,165,250,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(167,139,250,0.08) 0%, transparent 60%);
+  filter: blur(60px);
+  will-change: transform;
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 40px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  width: 100%;
+  z-index: 1;
+}
+
+.hero-content {
+  opacity: 0;
+}
+
+.hero-mark {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 32px;
+  opacity: 0;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-bottom: 28px;
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero-h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.hero-h1 em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  max-width: 480px;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnp {
+  background: var(--gold);
+  color: #111;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 26px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+
+.btnp:hover {
+  background: var(--goldl);
+  transform: translateY(-1px);
+}
+
+.btng {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.35);
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 14px 26px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+}
+
+.btng:hover {
+  background: var(--goldm);
+}
+
+.hero-note {
+  margin-top: 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.22);
+}
+
+/* Hero DCF Card */
+.hero-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(201,168,76,0.6);
+  margin-bottom: 16px;
+}
+
+.card-ticker {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.card-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.card-loaded {
+  background: var(--gold);
+  color: #111;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 12px;
+}
+
+.card-row-label {
+  color: var(--muted);
+}
+
+.card-row-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: #fff;
+  font-size: 13px;
+}
+
+.auto-badge {
+  font-size: 9px;
+  background: rgba(74,196,123,0.12);
+  color: var(--green);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(74,196,123,0.2);
+  margin-right: 8px;
+}
+
+.card-result {
+  margin-top: 20px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 10px;
+}
+
+.result-label {
+  font-size: 11px;
+  color: rgba(201,168,76,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.result-value {
+  font-family: 'Fraunces', serif;
+  font-size: 38px;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.result-verdict {
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ============================================
+   COMPARISON TABLE
+   ============================================ */
+#compare-section {
+  position: relative;
+  padding: 120px 40px;
+  border-top: 1px solid var(--faint);
+  background: rgba(255,255,255,0.01);
+}
+
+.compare-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.section-h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 42px;
+  color: #fff;
+  margin-bottom: 48px;
+  font-weight: 600;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.compare-table thead tr {
+  background: rgba(255,255,255,0.04);
+}
+
+.compare-table th {
+  padding: 16px 24px;
+  font-weight: 500;
+  font-size: 12px;
+  text-align: left;
+}
+
+.compare-table th:first-child {
+  color: rgba(255,255,255,0.35);
+}
+
+.compare-table th.equitylab {
+  color: var(--gold);
+  background: rgba(201,168,76,0.05);
+}
+
+.compare-table th.competitor {
+  color: rgba(255,255,255,0.4);
+}
+
+.th-subtitle {
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  font-weight: 400;
+  display: block;
+  margin-top: 2px;
+}
+
+.compare-table tbody tr {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.compare-table tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.01);
+}
+
+.compare-table td {
+  padding: 14px 24px;
+  font-size: 13px;
+}
+
+.compare-table td:first-child {
+  color: rgba(255,255,255,0.6);
+}
+
+.compare-table td.equitylab {
+  background: rgba(201,168,76,0.03);
+  text-align: center;
+}
+
+.compare-table td.competitor {
+  text-align: center;
+}
+
+.check-mark {
+  font-size: 16px;
+  color: var(--green);
+}
+
+.x-mark {
+  font-size: 16px;
+  color: rgba(255,255,255,0.2);
+}
+
+.price-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.price-cell.equitylab {
+  color: var(--gold);
+}
+
+.price-cell.competitor {
+  color: rgba(255,255,255,0.45);
+}
+
+.compare-note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 12px;
+}
+
+/* ============================================
+   HHI PINNED SEQUENCE
+   ============================================ */
+#hhi-section {
+  position: relative;
+  min-height: 240vh;
+  background: linear-gradient(180deg, transparent 0%, rgba(27,42,74,0.3) 50%, transparent 100%);
+  margin-top: 120px;
+  padding-top: 80px;
+  padding-bottom: 160px;
+}
+
+.hhi-container {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 40px 40px;
+}
+
+.hhi-stage {
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+}
+
+.hhi-title {
+  font-family: 'Fraunces', serif;
+  font-size: 48px;
+  color: #fff;
+  margin-bottom: 16px;
+  font-weight: 600;
+  opacity: 0;
+}
+
+.hhi-subtitle {
+  font-size: 16px;
+  color: var(--muted);
+  margin-bottom: 60px;
+  opacity: 0;
+}
+
+.hhi-viz {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 48px;
+  margin-bottom: 40px;
+}
+
+.hhi-score-display {
+  margin-bottom: 40px;
+}
+
+.hhi-score-number {
+  font-family: 'Fraunces', serif;
+  font-size: 72px;
+  color: var(--amber);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.hhi-score-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.hhi-score-range {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+.hhi-bars {
+  margin-bottom: 40px;
+}
+
+.hhi-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  opacity: 0;
+}
+
+.hhi-bar-label {
+  width: 100px;
+  text-align: right;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.hhi-bar-track {
+  flex: 1;
+  height: 32px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hhi-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  width: 0;
+}
+
+.hhi-bar-fill.tech { background: linear-gradient(90deg, rgba(96,165,250,0.4) 0%, rgba(96,165,250,0.7) 100%); }
+.hhi-bar-fill.finance { background: linear-gradient(90deg, rgba(167,139,250,0.4) 0%, rgba(167,139,250,0.7) 100%); }
+.hhi-bar-fill.energy { background: linear-gradient(90deg, rgba(251,146,60,0.4) 0%, rgba(251,146,60,0.7) 100%); }
+.hhi-bar-fill.consumer { background: linear-gradient(90deg, rgba(74,196,123,0.4) 0%, rgba(74,196,123,0.7) 100%); }
+
+.hhi-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.hhi-flag {
+  background: rgba(251,146,60,0.08);
+  border: 1px solid rgba(251,146,60,0.2);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: rgba(251,146,60,0.9);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.hhi-flag-icon {
+  font-size: 16px;
+}
+
+/* ============================================
+   TOOLS SECTION - STACKED CASCADE
+   ============================================ */
+#tools-section {
+  position: relative;
+  padding: 160px 40px 120px;
+  border-top: 1px solid var(--faint);
+  margin-top: 40px;
+}
+
+.tools-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tools-intro {
+  margin-bottom: 80px;
+}
+
+.tools-stack {
+  position: relative;
+  perspective: 1200px;
+}
+
+.tool-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+}
+
+.tool-card:hover {
+  border-color: rgba(201,168,76,0.3);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-4px);
+}
+
+.tool-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.tool-icon {
+  font-size: 36px;
+  color: var(--gold);
+}
+
+.tool-tag {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.tool-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.tool-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.tool-open {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Portfolio Pie Chart */
+.portfolio-viz {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.viz-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.portfolio-pie {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* ISA Growth Chart */
+.isa-viz {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.isa-chart {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* HHI Pie Chart */
+.hhi-pie-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  margin: 40px 0;
+  flex-wrap: wrap;
+}
+
+.hhi-pie {
+  width: 240px;
+  height: 240px;
+}
+
+.hhi-pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+/* ============================================
+   FOUNDER SECTION
+   ============================================ */
+#founder-section {
+  position: relative;
+  padding: 120px 40px;
+  background: rgba(255,255,255,0.01);
+  border-top: 1px solid var(--faint);
+}
+
+.founder-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 60px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.founder-card::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.founder-icon {
+  font-size: 48px;
+  margin-bottom: 24px;
+  opacity: 0.3;
+}
+
+.founder-text {
+  font-size: 17px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.8;
+  margin-bottom: 16px;
+  opacity: 0;
+}
+
+.founder-quote {
+  margin-top: 32px;
+  padding: 20px;
+  background: rgba(201,168,76,0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(201,168,76,0.15);
+  font-size: 14px;
+  color: rgba(201,168,76,0.7);
+  font-style: italic;
+  opacity: 0;
+}
+
+/* ============================================
+   WAITLIST SECTION
+   ============================================ */
+#waitlist-section {
+  position: relative;
+  padding: 120px 40px;
+  background: linear-gradient(180deg, rgba(201,168,76,0.04) 0%, transparent 100%);
+  border-top: 1px solid rgba(201,168,76,0.1);
+}
+
+.waitlist-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.waitlist-pricing {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 32px 0;
+  flex-wrap: wrap;
+}
+
+.price-card {
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 12px;
+  padding: 24px 36px;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.price-card.best {
+  background: rgba(74,196,123,0.06);
+  border-color: rgba(74,196,123,0.2);
+  position: relative;
+}
+
+.best-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: #111;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.price-amount {
+  font-family: 'Fraunces', serif;
+  font-size: 36px;
+  color: var(--gold);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.price-card.best .price-amount {
+  color: var(--green);
+}
+
+.price-period {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(201,168,76,0.6);
+}
+
+.price-card.best .price-period {
+  color: rgba(74,196,123,0.5);
+}
+
+.price-note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+}
+
+.waitlist-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 32px 0;
+  text-align: left;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  opacity: 0;
+}
+
+.feature-check {
+  color: var(--green);
+  font-size: 16px;
+}
+
+.waitlist-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.waitlist-email {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  color: #fff;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.waitlist-email:focus {
+  border-color: var(--gold);
+}
+
+.waitlist-btn {
+  background: var(--gold);
+  color: #111;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.waitlist-btn:hover {
+  background: var(--goldl);
+  transform: translateY(-1px);
+}
+
+.waitlist-disclaimer {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 12px;
+}
+
+.waitlist-success {
+  padding: 40px;
+  background: rgba(74,196,123,0.08);
+  border: 1px solid rgba(74,196,123,0.2);
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  border-top: 1px solid var(--faint);
+  padding: 40px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.footer-logo-mark {
+  width: 20px;
+  height: 20px;
+}
+
+.footer-logo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.footer-credit {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+}
+
+.footer-disclaimer {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  max-width: 600px;
+  line-height: 1.75;
+}
+
+.footer-disclaimer strong {
+  color: rgba(201,168,76,0.5);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  #topnav {
+    padding: 0 20px;
+    height: 56px;
+  }
+  
+  .navlinks {
+    display: none;
+  }
+  
+  #ticker-ribbon {
+    top: 56px;
+    height: 32px;
+  }
+  
+  .ticker-item {
+    font-size: 11px;
+  }
+  
+  #hero {
+    padding: 100px 20px 60px;
+  }
+  
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+  
+  .hero-h1 {
+    font-size: 38px;
+  }
+  
+  .hero-mark {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .section-h2 {
+    font-size: 32px;
+  }
+  
+  .compare-table {
+    font-size: 11px;
+  }
+  
+  .compare-table th,
+  .compare-table td {
+    padding: 10px 12px;
+  }
+  
+  .hhi-title {
+    font-size: 36px;
+  }
+  
+  .hhi-score-number {
+    font-size: 56px;
+  }
+  
+  .hhi-viz {
+    padding: 28px;
+  }
+  
+  .hhi-bar-label {
+    width: 70px;
+    font-size: 11px;
+  }
+  
+  .tool-card {
+    padding: 28px;
+  }
+  
+  .waitlist-pricing {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .waitlist-features {
+    grid-template-columns: 1fr;
+  }
+  
+  footer {
+    flex-direction: column;
+    padding: 30px 20px;
+  }
+}
+</style>
+</head>
+<body style="">
+
+<div id="landing">
+
+<!-- Gradient Mesh Background -->
+<div class="gradient-mesh">
+  <div class="mesh-gradient" style="background: radial-gradient(circle at 79.5573% 57.0822%, rgba(201, 168, 76, 0.2) 0%, transparent 50%), radial-gradient(circle at 20.4427% 42.9178%, rgba(96, 165, 250, 0.12) 0%, transparent 50%), radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 60%);"></div>
+</div>
+
+<!-- Navigation -->
+<nav id="topnav">
+  <div class="navlogo-container">
+    <svg class="navlogo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50, 50) rotate(45)">
+        <path d="M 0,0 L 35,0 L 35,35 L 0,35 Z" fill="#C9A84C"></path>
+        <path d="M 0,0 L -35,0 L -35,35 L 0,35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+        <path d="M 0,0 L -35,0 L -35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+        <path d="M 0,0 L 35,0 L 35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+      </g>
+    </svg>
+    <div class="navlogo-text">EquityLab</div>
+  </div>
+  <div class="navlinks">
+    <a href="#tools-section" class="navlink">Tools</a>
+    <a href="#compare-section" class="navlink">Compare</a>
+    <a href="#founder-section" class="navlink">About</a>
+    <button class="navcta" onclick="openApp('dcf')">Open Tools →</button>
+  </div>
+</nav>
+
+<!-- Ticker Ribbon -->
+<div id="ticker-ribbon">
+  <div class="ticker-track" id="ticker-track">
+      <div class="ticker-item">
+        <span class="ticker-symbol">RR.L</span>
+        <span class="ticker-price">£4.82</span>
+        <span class="ticker-change up">↑2.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BP.L</span>
+        <span class="ticker-price">£5.12</span>
+        <span class="ticker-change up">↑1.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">LLOY.L</span>
+        <span class="ticker-price">£0.54</span>
+        <span class="ticker-change down">↓0.8%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">VOD.L</span>
+        <span class="ticker-price">£0.73</span>
+        <span class="ticker-change down">↓1.2%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">HSBA.L</span>
+        <span class="ticker-price">£6.84</span>
+        <span class="ticker-change up">↑0.6%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BARC.L</span>
+        <span class="ticker-price">£2.15</span>
+        <span class="ticker-change down">↓0.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">GSK.L</span>
+        <span class="ticker-price">£14.32</span>
+        <span class="ticker-change up">↑0.9%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">AZN.L</span>
+        <span class="ticker-price">£112.45</span>
+        <span class="ticker-change up">↑1.8%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">SHEL.L</span>
+        <span class="ticker-price">£28.67</span>
+        <span class="ticker-change up">↑0.3%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">ULVR.L</span>
+        <span class="ticker-price">£42.18</span>
+        <span class="ticker-change down">↓0.5%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">DGE.L</span>
+        <span class="ticker-price">£31.24</span>
+        <span class="ticker-change up">↑1.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">NG.L</span>
+        <span class="ticker-price">£8.92</span>
+        <span class="ticker-change up">↑2.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">REL.L</span>
+        <span class="ticker-price">£25.34</span>
+        <span class="ticker-change down">↓1.6%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">PRU.L</span>
+        <span class="ticker-price">£7.45</span>
+        <span class="ticker-change up">↑0.7%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">LSEG.L</span>
+        <span class="ticker-price">£94.32</span>
+        <span class="ticker-change up">↑1.3%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">GLEN.L</span>
+        <span class="ticker-price">£4.28</span>
+        <span class="ticker-change down">↓2.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">AAL.L</span>
+        <span class="ticker-price">£18.92</span>
+        <span class="ticker-change up">↑0.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BT.L</span>
+        <span class="ticker-price">£1.38</span>
+        <span class="ticker-change down">↓0.9%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">IMB.L</span>
+        <span class="ticker-price">£17.64</span>
+        <span class="ticker-change up">↑1.5%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">SSE.L</span>
+        <span class="ticker-price">£16.28</span>
+        <span class="ticker-change up">↑0.2%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">RR.L</span>
+        <span class="ticker-price">£4.82</span>
+        <span class="ticker-change up">↑2.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BP.L</span>
+        <span class="ticker-price">£5.12</span>
+        <span class="ticker-change up">↑1.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">LLOY.L</span>
+        <span class="ticker-price">£0.54</span>
+        <span class="ticker-change down">↓0.8%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">VOD.L</span>
+        <span class="ticker-price">£0.73</span>
+        <span class="ticker-change down">↓1.2%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">HSBA.L</span>
+        <span class="ticker-price">£6.84</span>
+        <span class="ticker-change up">↑0.6%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BARC.L</span>
+        <span class="ticker-price">£2.15</span>
+        <span class="ticker-change down">↓0.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">GSK.L</span>
+        <span class="ticker-price">£14.32</span>
+        <span class="ticker-change up">↑0.9%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">AZN.L</span>
+        <span class="ticker-price">£112.45</span>
+        <span class="ticker-change up">↑1.8%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">SHEL.L</span>
+        <span class="ticker-price">£28.67</span>
+        <span class="ticker-change up">↑0.3%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">ULVR.L</span>
+        <span class="ticker-price">£42.18</span>
+        <span class="ticker-change down">↓0.5%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">DGE.L</span>
+        <span class="ticker-price">£31.24</span>
+        <span class="ticker-change up">↑1.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">NG.L</span>
+        <span class="ticker-price">£8.92</span>
+        <span class="ticker-change up">↑2.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">REL.L</span>
+        <span class="ticker-price">£25.34</span>
+        <span class="ticker-change down">↓1.6%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">PRU.L</span>
+        <span class="ticker-price">£7.45</span>
+        <span class="ticker-change up">↑0.7%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">LSEG.L</span>
+        <span class="ticker-price">£94.32</span>
+        <span class="ticker-change up">↑1.3%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">GLEN.L</span>
+        <span class="ticker-price">£4.28</span>
+        <span class="ticker-change down">↓2.1%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">AAL.L</span>
+        <span class="ticker-price">£18.92</span>
+        <span class="ticker-change up">↑0.4%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">BT.L</span>
+        <span class="ticker-price">£1.38</span>
+        <span class="ticker-change down">↓0.9%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">IMB.L</span>
+        <span class="ticker-price">£17.64</span>
+        <span class="ticker-change up">↑1.5%</span>
+      </div>
+    
+      <div class="ticker-item">
+        <span class="ticker-symbol">SSE.L</span>
+        <span class="ticker-price">£16.28</span>
+        <span class="ticker-change up">↑0.2%</span>
+      </div>
+    </div>
+</div>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-grid">
+    <div class="hero-content" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      
+      
+      <svg class="hero-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <g transform="translate(50, 50) rotate(45)">
+          <path d="M 0,0 L 35,0 L 35,35 L 0,35 Z" fill="#C9A84C"></path>
+          <path d="M 0,0 L -35,0 L -35,35 L 0,35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+          <path d="M 0,0 L -35,0 L -35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+          <path d="M 0,0 L 35,0 L 35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path>
+        </g>
+      </svg><div class="hero-eyebrow">
+        <span class="pulse-dot"></span>
+        <span>Now live · equitylab.co.uk</span>
+      </div>
+      
+      <h1 class="hero-h1">Professional <em>investment tools</em> built for UK retail investors</h1>
+      
+      <p class="hero-sub">Between completely free and useless, and 
+£299/year institutional. EquityLab gives serious retail investors the 
+tools they actually need — at a price that makes sense.</p>
+      
+      <div class="hero-btns">
+        <button class="btnp">Try the tools — free →</button>
+        <a class="btng" href="#waitlist-section">Join Pro waitlist</a>
+      </div>
+      
+      <p class="hero-note">No account required · No credit card · All four tools free</p>
+    </div>
+    
+    <div class="hero-card" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="card-label">DCF Calculator — Live Preview</div>
+      <div class="card-ticker">
+        <div class="card-input">RR.L</div>
+        <div class="card-loaded">✓ Loaded</div>
+      </div>
+      <div class="card-row">
+        <span class="card-row-label">Base Year FCF</span>
+        <span><span class="auto-badge">auto</span><span class="card-row-value">£1,000m</span></span>
+      </div>
+      <div class="card-row">
+        <span class="card-row-label">FCF Margin</span>
+        <span><span class="auto-badge">auto</span><span class="card-row-value">10.0%</span></span>
+      </div>
+      <div class="card-row">
+        <span class="card-row-label">WACC</span>
+        <span class="card-row-value">12.0%</span>
+      </div>
+      <div class="card-row">
+        <span class="card-row-label">Terminal Growth</span>
+        <span class="card-row-value">2.0%</span>
+      </div>
+      <div class="card-result">
+        <div class="result-label">Intrinsic Value Per Share</div>
+        <div class="result-value" id="dcf-value">£13.79</div>
+        <div class="result-verdict">→ Fairly valued at current price</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison Section -->
+<section id="compare-section">
+  <div class="compare-inner">
+    <div class="section-eyebrow">How we compare</div>
+    <h2 class="section-h2">The gap in the market</h2>
+    
+    <table class="compare-table" style="opacity: 1;">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="equitylab">EquityLab<span class="th-subtitle">← you are here</span></th>
+          <th class="competitor">Simply Wall St<span class="th-subtitle">Visual stock summaries</span></th>
+          <th class="competitor">Stockopedia<span class="th-subtitle">£299/yr — semi-professional</span></th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody">
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>UK-specific (ISA, GBX, FTSE)</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="x-mark">✗</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>DCF with sensitivity table</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="x-mark">✗</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>Auto-fill from ticker (5 free/day)</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>Earnings beat/miss history (5 free/day)</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>ISA growth projections</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="x-mark">✗</span></td>
+          <td class="competitor"><span class="x-mark">✗</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>Portfolio concentration (HHI)</td>
+          <td class="equitylab"><span class="check-mark">✓</span></td>
+          <td class="competitor"><span class="x-mark">✗</span></td>
+          <td class="competitor"><span class="check-mark">✓</span></td>
+        </tr>
+        <tr style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+          <td>Price</td>
+          <td class="equitylab"><span class="price-cell equitylab">£10/mo · £89/yr</span></td>
+          <td class="competitor"><span class="price-cell competitor">Free*</span></td>
+          <td class="competitor"><span class="price-cell competitor">£299/yr</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-note">* Simply Wall St free tier is heavily limited · Stockopedia pricing as of 2026</p>
+  </div>
+</section>
+
+<!-- HHI Pinned Sequence -->
+<section id="hhi-section">
+  <div class="hhi-container">
+    <div class="hhi-stage">
+      <h2 class="hhi-title" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">Portfolio Concentration Analysis</h2>
+      <p class="hhi-subtitle" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">Know exactly where your risk sits — powered by Herfindahl-Hirschman Index</p>
+      
+      <div class="hhi-viz">
+        <div class="hhi-score-display">
+          <div class="hhi-score-number" id="hhi-number">2,847</div>
+          <div class="hhi-score-label">CONCENTRATED RISK</div>
+          <div class="hhi-score-range">&lt;1,500 diversified · 1,500–2,500 moderate · &gt;2,500 concentrated</div>
+        </div>
+        
+        <div class="hhi-pie-container">
+          <svg class="hhi-pie" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <g id="hhi-pie-chart"><path d="M 100 100 L 100 0 A 100 100 0 0 1 195.10565162951536 130.90169943749473 Z" fill="#60A5FA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="152.5861046343716" y="61.79395860098925" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">NVDA 30%</text><path d="M 100 100 L 195.10565162951536 130.90169943749473 A 100 100 0 0 1 41.2214747707527 180.90169943749476 Z" fill="#A78BFA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="120.08610463437158" y="161.818673559185" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">UNH 30%</text><path d="M 100 100 L 41.2214747707527 180.90169943749476 A 100 100 0 0 1 0 100.00000000000001 Z" fill="#FB923C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="42.08457592775609" y="129.50938248307054" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GS 15%</text><path d="M 100 100 L 0 100.00000000000001 A 100 100 0 0 1 41.22147477075268 19.098300562505273 Z" fill="#4AC47B" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="42.084575927756084" y="70.49061751692946" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">AAPL 15%</text><path d="M 100 100 L 41.22147477075268 19.098300562505273 A 100 100 0 0 1 99.99999999999999 0 Z" fill="#C9A84C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="79.9138953656284" y="38.18132644081502" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GLD 10%</text><path d="M 100 100 L 100 0 A 100 100 0 0 1 195.10565162951536 130.90169943749473 Z" fill="#60A5FA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="152.5861046343716" y="61.79395860098925" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">NVDA 30%</text><path d="M 100 100 L 195.10565162951536 130.90169943749473 A 100 100 0 0 1 41.2214747707527 180.90169943749476 Z" fill="#A78BFA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="120.08610463437158" y="161.818673559185" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">UNH 30%</text><path d="M 100 100 L 41.2214747707527 180.90169943749476 A 100 100 0 0 1 0 100.00000000000001 Z" fill="#FB923C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="42.08457592775609" y="129.50938248307054" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GS 15%</text><path d="M 100 100 L 0 100.00000000000001 A 100 100 0 0 1 41.22147477075268 19.098300562505273 Z" fill="#4AC47B" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="42.084575927756084" y="70.49061751692946" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">AAPL 15%</text><path d="M 100 100 L 41.22147477075268 19.098300562505273 A 100 100 0 0 1 99.99999999999999 0 Z" fill="#C9A84C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="79.9138953656284" y="38.18132644081502" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GLD 10%</text></g>
+          </svg>
+          <div class="hhi-pie-legend" id="hhi-legend"><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#60A5FA"></div>
+      <span>NVDA — 30%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#A78BFA"></div>
+      <span>UNH — 30%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#FB923C"></div>
+      <span>GS — 15%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#4AC47B"></div>
+      <span>AAPL — 15%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#C9A84C"></div>
+      <span>GLD — 10%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#60A5FA"></div>
+      <span>NVDA — 30%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#A78BFA"></div>
+      <span>UNH — 30%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#FB923C"></div>
+      <span>GS — 15%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#4AC47B"></div>
+      <span>AAPL — 15%</span>
+    </div><div class="legend-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+      <div class="legend-color" style="background:#C9A84C"></div>
+      <span>GLD — 10%</span>
+    </div></div>
+        </div>
+        
+        <div class="hhi-bars">
+          <div class="hhi-bar-row" style="opacity: 1;">
+            <div class="hhi-bar-label">Technology</div>
+            <div class="hhi-bar-track">
+              <div class="hhi-bar-fill tech" style="width: 45%;">45%</div>
+            </div>
+          </div>
+          <div class="hhi-bar-row" style="opacity: 1;">
+            <div class="hhi-bar-label">Financials</div>
+            <div class="hhi-bar-track">
+              <div class="hhi-bar-fill finance" style="width: 28%;">28%</div>
+            </div>
+          </div>
+          <div class="hhi-bar-row" style="opacity: 1;">
+            <div class="hhi-bar-label">Energy</div>
+            <div class="hhi-bar-track">
+              <div class="hhi-bar-fill energy" style="width: 18%;">18%</div>
+            </div>
+          </div>
+          <div class="hhi-bar-row" style="opacity: 1;">
+            <div class="hhi-bar-label">Consumer</div>
+            <div class="hhi-bar-track">
+              <div class="hhi-bar-fill consumer" style="width: 9%;">9%</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hhi-flags">
+          <div class="hhi-flag" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+            <span class="hhi-flag-icon">⚠</span>
+            <span>3 positions exceed 15% of portfolio</span>
+          </div>
+          <div class="hhi-flag" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+            <span class="hhi-flag-icon">⚠</span>
+            <span>Tech sector exposure above 40% threshold</span>
+          </div>
+          <div class="hhi-flag" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+            <span class="hhi-flag-icon">⚠</span>
+            <span>Top 5 holdings represent 72% of portfolio value</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tools Section -->
+<section id="tools-section">
+  <div class="tools-inner">
+    <div class="tools-intro">
+      <div class="section-eyebrow">The toolkit</div>
+      <h2 class="section-h2">Four tools. Zero compromise.</h2>
+      <p style="font-size:16px;color:var(--muted);max-width:500px;margin:0 auto;">Every tool is fully functional on the free tier. Type a ticker, get your answer.</p>
+    </div>
+    
+    <div class="tools-stack">
+      <div class="tool-card" id="tool-dcf" onclick="openTool('DCF Calculator')" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="tool-card-top">
+          <span class="tool-icon">◈</span>
+          <span class="tool-tag" style="background:rgba(201,168,76,0.1);color:#C9A84C;border:1px solid rgba(201,168,76,0.25)">5 free lookups · Pro: unlimited</span>
+        </div>
+        <div class="tool-title">DCF Calculator</div>
+        <div class="tool-desc">Two-stage discounted cash flow model. 
+Enter a ticker to auto-fill financials — 5 free lookups per day, 
+unlimited on Pro. Sensitivity table across 25 WACC and growth 
+combinations.</div>
+        <div class="tool-open">Open tool →</div>
+      </div>
+      
+      <div class="tool-card" id="tool-isa" onclick="openTool('ISA Optimiser')" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="tool-card-top">
+          <span class="tool-icon">◎</span>
+          <span class="tool-tag" style="background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)">UK specific</span>
+        </div>
+        <div class="tool-title">ISA Optimiser</div>
+        <div class="tool-desc">Project your Stocks &amp; Shares ISA to age 65 across conservative, base, and optimistic return scenarios. UK tax wrapper aware.</div>
+        <div class="tool-open">Open tool →</div>
+        
+        <!-- ISA Growth Chart -->
+        <div class="isa-viz">
+          <div class="viz-label">Projected Growth to Age 65</div>
+          <svg class="isa-chart" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+            <g id="isa-growth-chart"><line x1="40" y1="160" x2="360" y2="160" stroke="rgba(255,255,255,0.2)" stroke-width="1"></line><line x1="40" y1="40" x2="40" y2="160" stroke="rgba(255,255,255,0.2)" stroke-width="1"></line><text x="40" y="180" fill="rgba(255,255,255,0.3)" font-size="10">25</text><text x="350" y="180" fill="rgba(255,255,255,0.3)" font-size="10">65</text><text x="10" y="40" fill="rgba(255,255,255,0.3)" font-size="10">£500k</text><path d="M 40 160 L 40 160 L 80 157.75 L 120 154.75 L 160 150.7 L 200 145.75 L 240 139.75 L 280 133 L 320 125.2 L 360 116.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" style="stroke-dasharray: 323.387px; stroke-dashoffset: 0px;"></path><text x="365" y="116.5" fill="rgba(255,255,255,0.3)" font-size="9">Conservative</text><path d="M 40 160 L 40 160 L 80 157.3 L 120 153.25 L 160 147.7 L 200 140.5 L 240 131.5 L 280 120.25 L 320 106.75 L 360 90.25" fill="none" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round" style="stroke-dasharray: 329.36px; stroke-dashoffset: 0px;"></path><text x="365" y="90.25" fill="#60A5FA" font-size="9">Expected</text><path d="M 40 160 L 40 160 L 80 156.7 L 120 151.3 L 160 143.5 L 200 133 L 240 119.5 L 280 102.25 L 320 80.5 L 360 53.5" fill="none" stroke="#4AC47B" stroke-width="1.5" stroke-linecap="round" style="stroke-dasharray: 342.176px; stroke-dashoffset: 0px;"></path><text x="365" y="53.5" fill="#4AC47B" font-size="9">Optimistic</text><line x1="40" y1="160" x2="360" y2="160" stroke="rgba(255,255,255,0.2)" stroke-width="1"></line><line x1="40" y1="40" x2="40" y2="160" stroke="rgba(255,255,255,0.2)" stroke-width="1"></line><text x="40" y="180" fill="rgba(255,255,255,0.3)" font-size="10">25</text><text x="350" y="180" fill="rgba(255,255,255,0.3)" font-size="10">65</text><text x="10" y="40" fill="rgba(255,255,255,0.3)" font-size="10">£500k</text><path d="M 40 160 L 40 160 L 80 157.75 L 120 154.75 L 160 150.7 L 200 145.75 L 240 139.75 L 280 133 L 320 125.2 L 360 116.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" style="stroke-dasharray: 323.387px; stroke-dashoffset: 0px;"></path><text x="365" y="116.5" fill="rgba(255,255,255,0.3)" font-size="9">Conservative</text><path d="M 40 160 L 40 160 L 80 157.3 L 120 153.25 L 160 147.7 L 200 140.5 L 240 131.5 L 280 120.25 L 320 106.75 L 360 90.25" fill="none" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round" style="stroke-dasharray: 329.36px; stroke-dashoffset: 0px;"></path><text x="365" y="90.25" fill="#60A5FA" font-size="9">Expected</text><path d="M 40 160 L 40 160 L 80 156.7 L 120 151.3 L 160 143.5 L 200 133 L 240 119.5 L 280 102.25 L 320 80.5 L 360 53.5" fill="none" stroke="#4AC47B" stroke-width="1.5" stroke-linecap="round" style="stroke-dasharray: 342.176px; stroke-dashoffset: 0px;"></path><text x="365" y="53.5" fill="#4AC47B" font-size="9">Optimistic</text></g>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="tool-card" id="tool-portfolio" onclick="openTool('Portfolio Analyser')" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="tool-card-top">
+          <span class="tool-icon">◉</span>
+          <span class="tool-tag" style="background:rgba(167,139,250,0.1);color:#A78BFA;border:1px solid rgba(167,139,250,0.2)">Risk analysis</span>
+        </div>
+        <div class="tool-title">Portfolio Analyser</div>
+        <div class="tool-desc">Sector exposure breakdown, 
+Herfindahl–Hirschman concentration score, and automated risk flags. Know
+ exactly where your risk sits.</div>
+        <div class="tool-open">Open tool →</div>
+        
+        <!-- Portfolio Pie Chart -->
+        <div class="portfolio-viz">
+          <div class="viz-label">Sample Portfolio Allocation</div>
+          <svg class="portfolio-pie" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <g id="portfolio-pie-chart"><path d="M 100 100 L 100 20 A 80 80 0 0 1 176.0845213036123 124.7213595499958 Z" fill="#60A5FA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="142.06888370749726" y="69.4351668807914" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">NVDA 30%</text><path d="M 100 100 L 176.0845213036123 124.7213595499958 A 80 80 0 0 1 52.97717981660216 164.72135954999578 Z" fill="#A78BFA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="116.06888370749726" y="149.454938847348" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">UNH 30%</text><path d="M 100 100 L 52.97717981660216 164.72135954999578 A 80 80 0 0 1 20 100.00000000000001 Z" fill="#FB923C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="53.66766074220487" y="123.60750598645643" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GS 15%</text><path d="M 100 100 L 20 100.00000000000001 A 80 80 0 0 1 52.97717981660214 35.27864045000422 Z" fill="#4AC47B" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="53.667660742204866" y="76.39249401354357" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">AAPL 15%</text><path d="M 100 100 L 52.97717981660214 35.27864045000422 A 80 80 0 0 1 99.99999999999999 20 Z" fill="#C9A84C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="83.93111629250272" y="50.54506115265202" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GLD 10%</text><path d="M 100 100 L 100 20 A 80 80 0 0 1 176.0845213036123 124.7213595499958 Z" fill="#60A5FA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="142.06888370749726" y="69.4351668807914" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">NVDA 30%</text><path d="M 100 100 L 176.0845213036123 124.7213595499958 A 80 80 0 0 1 52.97717981660216 164.72135954999578 Z" fill="#A78BFA" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="116.06888370749726" y="149.454938847348" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">UNH 30%</text><path d="M 100 100 L 52.97717981660216 164.72135954999578 A 80 80 0 0 1 20 100.00000000000001 Z" fill="#FB923C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="53.66766074220487" y="123.60750598645643" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GS 15%</text><path d="M 100 100 L 20 100.00000000000001 A 80 80 0 0 1 52.97717981660214 35.27864045000422 Z" fill="#4AC47B" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="53.667660742204866" y="76.39249401354357" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">AAPL 15%</text><path d="M 100 100 L 52.97717981660214 35.27864045000422 A 80 80 0 0 1 99.99999999999999 20 Z" fill="#C9A84C" opacity="0.85" stroke="rgba(255,255,255,0.1)" stroke-width="1"></path><text x="83.93111629250272" y="50.54506115265202" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="DM Sans, sans-serif">GLD 10%</text></g>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="tool-card" id="tool-earnings" onclick="openTool('Earnings Tracker')" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="tool-card-top">
+          <span class="tool-icon">◆</span>
+          <span class="tool-tag" style="background:rgba(251,146,60,0.1);color:#FB923C;border:1px solid rgba(251,146,60,0.2)">5 free lookups · Pro: unlimited</span>
+        </div>
+        <div class="tool-title">Earnings Tracker</div>
+        <div class="tool-desc">Actual EPS vs analyst consensus over the 
+last 8 quarters. Beat/miss history for any ticker — 5 free lookups per 
+day, unlimited companies on Pro.</div>
+        <div class="tool-open">Open tool →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Founder Section -->
+<section id="founder-section">
+  <div class="founder-card">
+    <div class="founder-icon">◈</div>
+    <div class="section-eyebrow">Built by an investor, for investors</div>
+    <p class="founder-text" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">I'm
+ Thomas, based in England. I manage my own investment portfolio and 
+study seriously — working through Damodaran on valuation, Kahneman on 
+behavioural finance. When I looked for tools to help me build proper DCF
+ models, everything was either too shallow or £300 a year.</p>
+    <p class="founder-text" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">So
+ I built EquityLab. Every tool is something I personally use. Every 
+decision is made by someone who understands what a retail investor 
+actually needs.</p>
+    <div class="founder-quote" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">"The product UK retail investors use three years before they're ready for Stockopedia."</div>
+  </div>
+</section>
+
+<!-- Waitlist Section -->
+<section id="waitlist-section">
+  <div class="waitlist-inner">
+    <div class="section-eyebrow">EquityLab Pro</div>
+    <h2 class="section-h2">Unlock the full arsenal</h2>
+    <p style="font-size:17px;color:rgba(255,255,255,0.7);margin-top:10px;line-height:1.7;max-width:520px;margin-left:auto;margin-right:auto;">
+      Free gets you 5 company lookups per day. <strong style="color:var(--gold)">Pro removes every limit.</strong>
+ Run unlimited DCF models, track earnings for your entire watchlist, 
+export to PDF for client presentations, and access the correlation 
+matrix that shows how your holdings actually move together. This is the 
+difference between casual analysis and institutional-grade research — at
+ 3% of the institutional price.
+    </p>
+    
+    <div class="waitlist-pricing">
+      <div class="price-card" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="price-amount">£10<span class="price-period">/month</span></div>
+        <div class="price-note">Cancel any time</div>
+      </div>
+      <div class="price-card best" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;">
+        <div class="best-badge">BEST VALUE</div>
+        <div class="price-amount">£89<span class="price-period">/year</span></div>
+        <div class="price-note">Save £31 vs monthly</div>
+      </div>
+    </div>
+    
+    <div class="waitlist-features">
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>Unlimited ticker auto-fill</div>
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>PDF &amp; Excel export</div>
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>Live earnings consensus</div>
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>Portfolio correlation matrix</div>
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>Unlimited saved models</div>
+      <div class="feature-item" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1;"><span class="feature-check">✓</span>Priority support</div>
+    </div>
+    
+    <div class="waitlist-success" id="waitlist-success" style="display:none;">
+      <div style="font-size:48px;margin-bottom:16px;color:var(--green)">✓</div>
+      <div style="font-size:18px;font-weight:600;color:var(--green);margin-bottom:8px">Check your inbox</div>
+      <div style="font-size:14px;color:var(--muted);max-width:440px;margin:0 auto;line-height:1.6">We've
+ sent a confirmation link. Click it to secure your spot — you're not on 
+the list until you confirm. All four tools are free in the meantime.</div>
+    </div>
+
+    <form class="waitlist-form" id="waitlist-form">
+      <input class="waitlist-email" type="email" name="email" placeholder="your@email.com" required="" value="a.gaynham@gmail.com">
+      <button class="waitlist-btn" type="submit">Join the waitlist</button>
+    </form>
+    <p class="waitlist-disclaimer">No spam. One email when Pro launches. Unsubscribe any time.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div>
+    <div class="footer-brand">
+      <svg class="footer-logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50, 50) rotate(45)">
+          <path d="M 0,0 L 35,0 L 35,35 L 0,35 Z" fill="#C9A84C"></path>
+          <path d="M 0,0 L -35,0 L -35,35 L 0,35 Z M 0,0 L -35,0 L -35,-35 L 0,-35 Z M 0,0 L 35,0 L 35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></path>
+        </g>
+      </svg>
+      <div class="footer-logo-text">EquityLab</div>
+    </div>
+    <div class="footer-credit">© 2026 EquityLab · Built by Thomas, England</div>
+  </div>
+  <div class="footer-disclaimer">
+    <strong>Educational use only — not financial advice.</strong> 
+EquityLab is not authorised or regulated by the Financial Conduct 
+Authority (FCA). All tools are calculators based on user-supplied inputs
+ and do not constitute a personal recommendation to buy, hold, or sell 
+any security. Always verify data against official company filings and 
+consult a qualified financial adviser before making investment 
+decisions.
+  </div>
+</footer>
+
+<script>
+// ============================================
+// LENIS SMOOTH SCROLL
+// ============================================
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  direction: 'vertical',
+  smooth: true,
+  smoothTouch: false,
+  touchMultiplier: 2,
+});
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// ============================================
+// TOOL CLICK HANDLER — navigate to app
+// ============================================
+function openTool(toolName) {
+  const key = { 'DCF Calculator':'dcf', 'ISA Optimiser':'isa', 'Portfolio Analyser':'portfolio', 'Earnings Tracker':'earnings' };
+  openApp(key[toolName] || 'dcf');
+}
+window.openTool = openTool;
+
+function showLanding() {
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
+  window.scrollTo(0,0);
+}
+
+function openApp(tool) {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  ['dcf','isa','portfolio','earnings'].forEach(t => {
+    const pid = t==='portfolio' ? 'pport' : t==='earnings' ? 'pearn' : 'p'+t;
+    document.getElementById(pid).style.display = t===tool ? 'block' : 'none';
+    document.getElementById('sb-'+t).classList.toggle('active', t===tool);
+  });
+  if(tool==='dcf' && !document.getElementById('pdcf').innerHTML) renderDCF();
+  if(tool==='isa' && !document.getElementById('pisa').innerHTML) renderISA();
+  if(tool==='portfolio' && !document.getElementById('pport').innerHTML) renderPortfolio();
+  if(tool==='earnings' && !document.getElementById('pearn').innerHTML) renderEarnings();
+  window.scrollTo(0,0);
+}
+window.openApp = openApp;
+
+// ============================================
+// TICKER RIBBON - MOCK UK STOCKS
+// ============================================
+const ukStocks = [
+  { symbol: 'RR.L', price: 4.82, change: 2.1 },
+  { symbol: 'BP.L', price: 5.12, change: 1.4 },
+  { symbol: 'LLOY.L', price: 0.54, change: -0.8 },
+  { symbol: 'VOD.L', price: 0.73, change: -1.2 },
+  { symbol: 'HSBA.L', price: 6.84, change: 0.6 },
+  { symbol: 'BARC.L', price: 2.15, change: -0.4 },
+  { symbol: 'GSK.L', price: 14.32, change: 0.9 },
+  { symbol: 'AZN.L', price: 112.45, change: 1.8 },
+  { symbol: 'SHEL.L', price: 28.67, change: 0.3 },
+  { symbol: 'ULVR.L', price: 42.18, change: -0.5 },
+  { symbol: 'DGE.L', price: 31.24, change: 1.1 },
+  { symbol: 'NG.L', price: 8.92, change: 2.4 },
+  { symbol: 'REL.L', price: 25.34, change: -1.6 },
+  { symbol: 'PRU.L', price: 7.45, change: 0.7 },
+  { symbol: 'LSEG.L', price: 94.32, change: 1.3 },
+  { symbol: 'GLEN.L', price: 4.28, change: -2.1 },
+  { symbol: 'AAL.L', price: 18.92, change: 0.4 },
+  { symbol: 'BT.L', price: 1.38, change: -0.9 },
+  { symbol: 'IMB.L', price: 17.64, change: 1.5 },
+  { symbol: 'SSE.L', price: 16.28, change: 0.2 }
+];
+
+function renderTicker() {
+  const track = document.getElementById('ticker-track');
+  const tickerHTML = ukStocks.map(stock => {
+    const changeClass = stock.change >= 0 ? 'up' : 'down';
+    const changeSymbol = stock.change >= 0 ? '↑' : '↓';
+    return `
+      <div class="ticker-item">
+        <span class="ticker-symbol">${stock.symbol}</span>
+        <span class="ticker-price">£${stock.price.toFixed(2)}</span>
+        <span class="ticker-change ${changeClass}">${changeSymbol}${Math.abs(stock.change).toFixed(1)}%</span>
+      </div>
+    `;
+  }).join('');
+  
+  // Duplicate for infinite scroll
+  track.innerHTML = tickerHTML + tickerHTML;
+}
+
+renderTicker();
+
+// ============================================
+// GRADIENT MESH - CURSOR REACTIVE
+// ============================================
+const meshGradient = document.querySelector('.mesh-gradient');
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth) * 100;
+  mouseY = (e.clientY / window.innerHeight) * 100;
+  
+  meshGradient.style.background = `
+    radial-gradient(circle at ${mouseX}% ${mouseY}%, rgba(201,168,76,0.2) 0%, transparent 50%),
+    radial-gradient(circle at ${100-mouseX}% ${100-mouseY}%, rgba(96,165,250,0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(167,139,250,0.08) 0%, transparent 60%)
+  `;
+});
+
+// ============================================
+// GSAP ANIMATIONS
+// ============================================
+gsap.registerPlugin(ScrollTrigger);
+
+// Hero entrance
+gsap.to('.hero-mark', {
+  opacity: 1,
+  y: 0,
+  duration: 0.8,
+  delay: 0.2,
+  ease: 'power3.out'
+});
+
+gsap.to('.hero-content', {
+  opacity: 1,
+  y: 0,
+  duration: 1,
+  delay: 0.4,
+  ease: 'power3.out'
+});
+
+gsap.to('.hero-card', {
+  opacity: 1,
+  y: 0,
+  duration: 1,
+  delay: 0.6,
+  ease: 'power3.out'
+});
+
+// DCF value counter
+const dcfValue = document.getElementById('dcf-value');
+gsap.to({ val: 0 }, {
+  val: 13.79,
+  duration: 2,
+  delay: 1,
+  ease: 'power2.out',
+  onUpdate: function() {
+    dcfValue.textContent = '£' + this.targets()[0].val.toFixed(2);
+  }
+});
+
+// Compare table entrance
+gsap.to('.compare-table', {
+  opacity: 1,
+  scrollTrigger: {
+    trigger: '.compare-table',
+    start: 'top 80%',
+  },
+  duration: 0.6,
+  ease: 'power2.out'
+});
+
+// Compare table rows stagger
+const compareRows = document.querySelectorAll('#compare-tbody tr');
+gsap.to(compareRows, {
+  opacity: 1,
+  y: 0,
+  stagger: 0.1,
+  scrollTrigger: {
+    trigger: '#compare-tbody',
+    start: 'top 75%',
+  },
+  duration: 0.5,
+  ease: 'power2.out'
+});
+
+// ============================================
+// HHI PINNED SEQUENCE
+// ============================================
+gsap.to('.hhi-title', {
+  opacity: 1,
+  y: 0,
+  scrollTrigger: {
+    trigger: '#hhi-section',
+    start: 'top 50%',
+  },
+  duration: 0.8,
+  ease: 'power3.out'
+});
+
+gsap.to('.hhi-subtitle', {
+  opacity: 1,
+  y: 0,
+  scrollTrigger: {
+    trigger: '#hhi-section',
+    start: 'top 50%',
+  },
+  duration: 0.8,
+  delay: 0.2,
+  ease: 'power3.out'
+});
+
+// HHI number counter
+const hhiNumber = document.getElementById('hhi-number');
+gsap.to({ val: 0 }, {
+  val: 2847,
+  scrollTrigger: {
+    trigger: '#hhi-section',
+    start: 'top 40%',
+    end: 'top 20%',
+    scrub: 1,
+  },
+  onUpdate: function() {
+    hhiNumber.textContent = Math.floor(this.targets()[0].val).toLocaleString();
+  }
+});
+
+// HHI bars animate
+const hhiBarRows = document.querySelectorAll('.hhi-bar-row');
+hhiBarRows.forEach((row, i) => {
+  const fill = row.querySelector('.hhi-bar-fill');
+  const targetWidth = fill.textContent; // e.g., "45%"
+  
+  gsap.to(row, {
+    opacity: 1,
+    scrollTrigger: {
+      trigger: '#hhi-section',
+      start: 'top 30%',
+    },
+    delay: i * 0.15,
+    duration: 0.5
+  });
+  
+  gsap.to(fill, {
+    width: targetWidth,
+    scrollTrigger: {
+      trigger: '#hhi-section',
+      start: 'top 30%',
+    },
+    delay: i * 0.15 + 0.2,
+    duration: 1,
+    ease: 'power2.out'
+  });
+});
+
+// HHI flags stagger
+const hhiFlags = document.querySelectorAll('.hhi-flag');
+gsap.to(hhiFlags, {
+  opacity: 1,
+  x: 0,
+  stagger: 0.15,
+  scrollTrigger: {
+    trigger: '#hhi-section',
+    start: 'top 20%',
+  },
+  duration: 0.6,
+  ease: 'power2.out'
+});
+
+// ============================================
+// TOOLS - STACKED CASCADE
+// ============================================
+const toolCards = document.querySelectorAll('.tool-card');
+toolCards.forEach((card, i) => {
+  gsap.to(card, {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    scrollTrigger: {
+      trigger: card,
+      start: 'top 75%',
+    },
+    delay: i * 0.15,
+    duration: 0.8,
+    ease: 'power3.out'
+  });
+});
+
+// ============================================
+// PORTFOLIO PIE CHART
+// ============================================
+const portfolioData = [
+  { name: 'NVIDIA', ticker: 'NVDA', value: 30, color: '#60A5FA' },
+  { name: 'UnitedHealth', ticker: 'UNH', value: 30, color: '#A78BFA' },
+  { name: 'Goldman Sachs', ticker: 'GS', value: 15, color: '#FB923C' },
+  { name: 'Apple', ticker: 'AAPL', value: 15, color: '#4AC47B' },
+  { name: 'Gold ETF', ticker: 'GLD', value: 10, color: '#C9A84C' }
+];
+
+function createPieChart(data, svgId, radius = 80, showLabels = false) {
+  const svg = document.getElementById(svgId);
+  const cx = 100;
+  const cy = 100;
+  let currentAngle = -90; // Start from top
+  
+  data.forEach((item, i) => {
+    const angle = (item.value / 100) * 360;
+    const startAngle = currentAngle * (Math.PI / 180);
+    const endAngle = (currentAngle + angle) * (Math.PI / 180);
+    
+    const x1 = cx + radius * Math.cos(startAngle);
+    const y1 = cy + radius * Math.sin(startAngle);
+    const x2 = cx + radius * Math.cos(endAngle);
+    const y2 = cy + radius * Math.sin(endAngle);
+    
+    const largeArc = angle > 180 ? 1 : 0;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+    path.setAttribute('d', d);
+    path.setAttribute('fill', item.color);
+    path.setAttribute('opacity', '0.85');
+    path.setAttribute('stroke', 'rgba(255,255,255,0.1)');
+    path.setAttribute('stroke-width', '1');
+    svg.appendChild(path);
+    
+    // Add label if requested
+    if (showLabels && item.value >= 10) {
+      const midAngle = (startAngle + endAngle) / 2;
+      const labelRadius = radius * 0.65;
+      const labelX = cx + labelRadius * Math.cos(midAngle);
+      const labelY = cy + labelRadius * Math.sin(midAngle);
+      
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', labelX);
+      text.setAttribute('y', labelY);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('fill', '#fff');
+      text.setAttribute('font-size', '10');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('font-family', 'DM Sans, sans-serif');
+      text.textContent = `${item.ticker} ${item.value}%`;
+      svg.appendChild(text);
+    }
+    
+    currentAngle += angle;
+    
+    // Animate in
+    gsap.from(path, {
+      attr: { d: `M ${cx} ${cy} L ${cx} ${cy - radius} A ${radius} ${radius} 0 0 1 ${cx} ${cy - radius} Z` },
+      scrollTrigger: {
+        trigger: `#${svgId}`,
+        start: 'top 60%',
+      },
+      delay: i * 0.1,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+  });
+}
+
+// ============================================
+// HHI PIE CHART & LEGEND
+// ============================================
+function createHHIPieChart() {
+  createPieChart(portfolioData, 'hhi-pie-chart', 100, true); // Show labels
+  
+  const legend = document.getElementById('hhi-legend');
+  portfolioData.forEach((item, i) => {
+    const legendItem = document.createElement('div');
+    legendItem.className = 'legend-item';
+    legendItem.innerHTML = `
+      <div class="legend-color" style="background:${item.color}"></div>
+      <span>${item.ticker} — ${item.value}%</span>
+    `;
+    legend.appendChild(legendItem);
+    
+    gsap.from(legendItem, {
+      opacity: 0,
+      x: -10,
+      scrollTrigger: {
+        trigger: '#hhi-section',
+        start: 'top 30%',
+      },
+      delay: i * 0.1 + 0.5,
+      duration: 0.5,
+      ease: 'power2.out'
+    });
+  });
+}
+
+// ============================================
+// ISA GROWTH CURVE
+// ============================================
+function createISAChart() {
+  const svg = document.getElementById('isa-growth-chart');
+  const width = 400;
+  const height = 200;
+  const padding = 40;
+  
+  // Axes
+  const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  xAxis.setAttribute('x1', padding);
+  xAxis.setAttribute('y1', height - padding);
+  xAxis.setAttribute('x2', width - padding);
+  xAxis.setAttribute('y2', height - padding);
+  xAxis.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+  xAxis.setAttribute('stroke-width', '1');
+  svg.appendChild(xAxis);
+  
+  const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  yAxis.setAttribute('x1', padding);
+  yAxis.setAttribute('y1', padding);
+  yAxis.setAttribute('x2', padding);
+  yAxis.setAttribute('y2', height - padding);
+  yAxis.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+  yAxis.setAttribute('stroke-width', '1');
+  svg.appendChild(yAxis);
+  
+  // Age labels
+  const ageStart = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  ageStart.setAttribute('x', padding);
+  ageStart.setAttribute('y', height - 20);
+  ageStart.setAttribute('fill', 'rgba(255,255,255,0.3)');
+  ageStart.setAttribute('font-size', '10');
+  ageStart.textContent = '25';
+  svg.appendChild(ageStart);
+  
+  const ageEnd = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  ageEnd.setAttribute('x', width - padding - 10);
+  ageEnd.setAttribute('y', height - 20);
+  ageEnd.setAttribute('fill', 'rgba(255,255,255,0.3)');
+  ageEnd.setAttribute('font-size', '10');
+  ageEnd.textContent = '65';
+  svg.appendChild(ageEnd);
+  
+  // Value label
+  const valueLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  valueLabel.setAttribute('x', 10);
+  valueLabel.setAttribute('y', padding);
+  valueLabel.setAttribute('fill', 'rgba(255,255,255,0.3)');
+  valueLabel.setAttribute('font-size', '10');
+  valueLabel.textContent = '£500k';
+  svg.appendChild(valueLabel);
+  
+  // Growth curves
+  const curves = [
+    { name: 'Conservative', color: 'rgba(255,255,255,0.3)', growth: [0, 15, 35, 62, 95, 135, 180, 232, 290] },
+    { name: 'Expected', color: '#60A5FA', growth: [0, 18, 45, 82, 130, 190, 265, 355, 465] },
+    { name: 'Optimistic', color: '#4AC47B', growth: [0, 22, 58, 110, 180, 270, 385, 530, 710] }
+  ];
+  
+  curves.forEach((curve, curveIndex) => {
+    let pathD = `M ${padding} ${height - padding}`;
+    curve.growth.forEach((value, i) => {
+      const x = padding + (i / (curve.growth.length - 1)) * (width - 2 * padding);
+      const y = height - padding - (value / 800) * (height - 2 * padding);
+      pathD += ` L ${x} ${y}`;
+    });
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', curve.color);
+    path.setAttribute('stroke-width', curveIndex === 1 ? '2.5' : '1.5');
+    path.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(path);
+    
+    // Animate path drawing
+    const pathLength = path.getTotalLength();
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
+    
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      scrollTrigger: {
+        trigger: '#tool-isa',
+        start: 'top 60%',
+      },
+      delay: curveIndex * 0.2,
+      duration: 1.5,
+      ease: 'power2.out'
+    });
+    
+    // Label
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', width - padding + 5);
+    label.setAttribute('y', height - padding - (curve.growth[curve.growth.length - 1] / 800) * (height - 2 * padding));
+    label.setAttribute('fill', curve.color);
+    label.setAttribute('font-size', '9');
+    label.textContent = curve.name;
+    svg.appendChild(label);
+  });
+}
+
+// Render charts
+createPieChart(portfolioData, 'portfolio-pie-chart', 80, true); // Show labels
+createHHIPieChart();
+createISAChart();
+
+// ============================================
+// FOUNDER SECTION
+// ============================================
+const founderTexts = document.querySelectorAll('.founder-text');
+gsap.to(founderTexts, {
+  opacity: 1,
+  y: 0,
+  stagger: 0.2,
+  scrollTrigger: {
+    trigger: '#founder-section',
+    start: 'top 70%',
+  },
+  duration: 0.8,
+  ease: 'power2.out'
+});
+
+gsap.to('.founder-quote', {
+  opacity: 1,
+  y: 0,
+  scrollTrigger: {
+    trigger: '#founder-section',
+    start: 'top 60%',
+  },
+  delay: 0.6,
+  duration: 0.8,
+  ease: 'power2.out'
+});
+
+// ============================================
+// WAITLIST SECTION
+// ============================================
+const priceCards = document.querySelectorAll('.price-card');
+gsap.to(priceCards, {
+  opacity: 1,
+  scale: 1,
+  stagger: 0.15,
+  scrollTrigger: {
+    trigger: '#waitlist-section',
+    start: 'top 70%',
+  },
+  duration: 0.6,
+  ease: 'back.out(1.7)'
+});
+
+const featureItems = document.querySelectorAll('.feature-item');
+gsap.to(featureItems, {
+  opacity: 1,
+  x: 0,
+  stagger: 0.08,
+  scrollTrigger: {
+    trigger: '.waitlist-features',
+    start: 'top 75%',
+  },
+  duration: 0.5,
+  ease: 'power2.out'
+});
+
+// ============================================
+// FORM SUBMISSION — Buttondown
+// ============================================
+(function attachWaitlistHandler() {
+  const form = document.getElementById('waitlist-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const emailInput = form.querySelector('.waitlist-email');
+    const btn = form.querySelector('.waitlist-btn');
+    const email = emailInput.value.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      emailInput.focus();
+      return;
+    }
+
+    btn.textContent = 'Joining…';
+    btn.disabled = true;
+
+    try {
+      const body = new FormData();
+      body.append('email', email);
+      body.append('tag', 'waitlist');
+      body.append('tag', 'landing-html');
+
+      // IMPORTANT: mode 'no-cors' makes the response opaque — res.status is
+      // always 0 and res.ok is always false regardless of what Buttondown
+      // returns. Do NOT check the response. If the fetch doesn't throw, the
+      // request reached the server. Buttondown's server-side validation and
+      // double opt-in confirmation email are the real success signal.
+      // URL uses exact casing from Buttondown's own embed dashboard (Tgaynham).
+      await fetch('https://buttondown.com/api/emails/embed-subscribe/Tgaynham', {
+        method: 'POST',
+        mode: 'no-cors',
+        body
+      });
+    } catch (err) {
+      // Only fires on genuine network failure (offline, DNS error, etc.)
+      console.error('[waitlist] Network error:', err);
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+      return;
+    }
+
+    // Request reached Buttondown — show success UI.
+    const features = document.querySelector('.waitlist-features');
+    const pricing  = document.querySelector('.waitlist-pricing');
+    const success  = document.getElementById('waitlist-success');
+
+    const reveal = () => {
+      form.style.display     = 'none';
+      if (features) features.style.display = 'none';
+      if (pricing)  pricing.style.display  = 'none';
+      if (success)  success.style.display  = 'block';
+    };
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to([form, features, pricing].filter(Boolean), {
+        opacity: 0, y: -20, duration: 0.4, ease: 'power2.in',
+        onComplete: () => {
+          reveal();
+          if (success) gsap.from(success, { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' });
+        }
+      });
+    } else {
+      reveal();
+    }
+  });
+})();
+
+</script>
+
+</div><!-- end landing -->
+
+<!-- APP VIEW -->
+<div id="app" style="display:none; min-height:100vh;">
+  <div class="applayout">
+    <div id="sidebar">
+      <div class="sblogo" onclick="showLanding()" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="translate(50,50) rotate(45)"><path d="M 0,0 L 35,0 L 35,35 L 0,35 Z" fill="#C9A84C"></path><path d="M 0,0 L -35,0 L -35,35 L 0,35 Z M 0,0 L -35,0 L -35,-35 L 0,-35 Z M 0,0 L 35,0 L 35,-35 L 0,-35 Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"></path></g></svg>
+          <span style="font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#fff;">EquityLab</span>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:4px;">← Back to home</div>
+      </div>
+      <nav class="sbnav">
+        <div class="sblbl">Tools</div>
+        <div class="sbitem" id="sb-dcf" onclick="openApp('dcf')"><span class="sbicon">◈</span><div><div class="sbitlbl">DCF Calculator</div><div class="sbitdesc">Intrinsic value</div></div></div>
+        <div class="sbitem" id="sb-isa" onclick="openApp('isa')"><span class="sbicon">◎</span><div><div class="sbitlbl">ISA Optimiser</div><div class="sbitdesc">Project to age 65</div></div></div>
+        <div class="sbitem" id="sb-portfolio" onclick="openApp('portfolio')"><span class="sbicon">◉</span><div><div class="sbitlbl">Portfolio Analyser</div><div class="sbitdesc">Concentration &amp; risk</div></div></div>
+        <div class="sbitem" id="sb-earnings" onclick="openApp('earnings')"><span class="sbicon">◆</span><div><div class="sbitlbl">Earnings Tracker</div><div class="sbitdesc">Beat/miss history</div></div></div>
+      </nav>
+      <div class="sbpro">
+        <div class="sbprocard">
+          <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:6px;">EquityLab Pro</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;margin-bottom:10px;">Unlimited lookups, PDF export, live earnings &amp; correlation matrix.</div>
+          <button style="background:var(--gold);color:#111;font-size:12px;font-weight:700;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;" onclick="showLanding();setTimeout(()=>document.getElementById('waitlist-section').scrollIntoView({behavior:'smooth'}),300)">Join Waitlist →</button>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.18);text-align:center;margin-top:10px;">© 2026 EquityLab</div>
+      </div>
+    </div>
+    <div id="mainpanel">
+      <div id="pdcf"></div>
+      <div id="pisa" style="display:none"></div>
+      <div id="pport" style="display:none"></div>
+      <div id="pearn" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.applayout{display:flex;min-height:100vh;}
+#sidebar{width:232px;background:#111C33;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sblogo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sbnav{padding:14px 10px;flex:1;}
+.sblbl{font-size:10px;font-weight:600;letter-spacing:.1em;color:rgba(201,168,76,.4);text-transform:uppercase;padding:4px 10px 10px;}
+.sbitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;margin-bottom:2px;cursor:pointer;transition:all .15s;border:1px solid transparent;}
+.sbitem:hover{background:rgba(255,255,255,.04);}
+.sbitem.active{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.2);}
+.sbicon{font-size:15px;color:rgba(255,255,255,.35);flex-shrink:0;}
+.sbitem.active .sbicon,.sbitem.active .sbitlbl{color:var(--gold);}
+.sbitlbl{font-size:13px;font-weight:500;color:rgba(255,255,255,.75);}
+.sbitdesc{font-size:11px;color:rgba(255,255,255,.28);margin-top:1px;}
+.sbpro{padding:14px;border-top:1px solid rgba(255,255,255,.08);}
+.sbprocard{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:14px;}
+#mainpanel{flex:1;overflow-y:auto;padding:32px 36px;max-width:960px;}
+.toolhdr{margin-bottom:28px;}
+.tooley{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.toolh1{font-family:'Fraunces',serif;font-size:30px;color:#fff;margin-bottom:6px;font-weight:600;}
+.toolintro{font-size:14px;color:var(--muted);line-height:1.65;}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:22px;margin-bottom:18px;}
+.csec{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.field{margin-bottom:14px;}
+.fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+label{font-size:12px;font-weight:500;color:rgba(255,255,255,.6);display:block;margin-bottom:4px;}
+.labelrow{display:flex;justify-content:space-between;align-items:baseline;}
+.autobadge{font-size:10px;background:rgba(74,196,123,.12);color:var(--green);padding:2px 6px;border-radius:3px;border:1px solid rgba(74,196,123,.2);}
+#mainpanel input[type=text],#mainpanel input[type=number]{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.28);border-radius:6px;color:#fff;padding:10px 13px;font-family:'JetBrains Mono',monospace;font-size:13px;width:100%;outline:none;transition:border-color .2s;}
+#mainpanel input:focus{border-color:var(--gold);}
+#mainpanel input.autofilled{border-color:rgba(74,196,123,.5);background:rgba(74,196,123,.05);}
+.hint{font-size:11px;color:rgba(255,255,255,.25);margin-top:3px;}
+.btn{background:var(--gold);color:#111;font-size:13px;font-weight:700;padding:10px 18px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;white-space:nowrap;}
+.btn:hover{background:var(--goldl);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btnout{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-size:13px;font-weight:500;padding:9px 16px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btnout:hover{background:rgba(201,168,76,.1);}
+.banner{padding:10px 14px;border-radius:7px;font-size:12px;line-height:1.6;margin-top:10px;}
+.bsuccess{background:rgba(74,196,123,.08);border:1px solid rgba(74,196,123,.2);color:var(--green);}
+.berror{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--red);}
+.bwarn{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--amber);}
+.resbig{font-family:'Fraunces',serif;font-size:46px;color:var(--gold);line-height:1;text-align:center;}
+.resverd{font-size:13px;font-weight:600;text-align:center;margin-top:10px;}
+.rescur{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-top:5px;}
+.brow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.brow.bold{border-bottom-color:rgba(201,168,76,.2);font-weight:600;}
+.brow.bold .blabel{color:rgba(255,255,255,.9);}
+.brow.bold .bval{color:var(--amber);}
+.blabel{color:rgba(255,255,255,.6);}
+.bval{font-family:'JetBrains Mono',monospace;}
+.projtbl{width:100%;border-collapse:collapse;font-size:12px;}
+.projtbl th{text-align:right;padding:5px 8px;font-weight:500;color:rgba(255,255,255,.35);font-size:11px;}
+.projtbl th:first-child{text-align:left;}
+.projtbl td{text-align:right;padding:5px 8px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.7);}
+.projtbl td:first-child{text-align:left;color:rgba(255,255,255,.45);}
+.projtbl td:last-child{color:var(--amber);}
+.projtbl tr:nth-child(odd) td{background:rgba(255,255,255,.02);}
+.senswrap{overflow-x:auto;}
+.senstbl{border-collapse:collapse;font-size:12px;min-width:460px;}
+.senstbl th{padding:8px 10px;font-weight:500;font-size:11px;text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.4);}
+.senstbl td{padding:10px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:500;border:1px solid rgba(255,255,255,.05);font-size:12px;}
+.sg{background:rgba(74,196,123,.15);color:#4AC47B;}
+.sr{background:rgba(239,68,68,.15);color:#F87171;}
+.sa{background:rgba(201,168,76,.08);color:#E2C97E;}
+.sb2{outline:2px solid var(--gold)!important;outline-offset:-2px;color:var(--gold)!important;}
+.sensleg{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap;}
+.senslegitem{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4);}
+.senslegdot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.sccard{padding:18px;border-radius:10px;margin-bottom:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);}
+.scbar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-top:8px;}
+.scfill{height:100%;border-radius:3px;transition:width .4s;}
+.agetbl{width:100%;border-collapse:collapse;font-size:12px;}
+.agetbl th{padding:6px 10px;text-align:right;font-size:11px;font-weight:500;color:rgba(255,255,255,.3);border-bottom:1px solid rgba(255,255,255,.06);}
+.agetbl th:first-child{text-align:left;}
+.agetbl td{padding:7px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.65);font-size:12px;}
+.agetbl td:first-child{text-align:left;color:rgba(255,255,255,.45);}
+.agetbl tr:nth-child(odd) td{background:rgba(255,255,255,.02);}
+.htbl{width:100%;border-collapse:collapse;font-size:12px;}
+.htbl th{text-align:left;padding:7px 8px;font-size:11px;font-weight:500;color:rgba(255,255,255,.3);border-bottom:1px solid rgba(255,255,255,.06);}
+.htbl td{padding:7px 8px;vertical-align:middle;}
+.htbl select{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.25);border-radius:5px;color:#fff;padding:6px 8px;font-size:11px;outline:none;font-family:'DM Sans',sans-serif;}
+.rmbtn{background:transparent;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:16px;padding:0 4px;}
+.rmbtn:hover{color:var(--red);}
+.barrow{margin-bottom:10px;}
+.bartop{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:4px;}
+.bartrack{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.barfill{height:100%;border-radius:3px;transition:width .35s;}
+.epssummary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.epsstat{text-align:center;padding:14px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.07);}
+.epsval{font-family:'Fraunces',serif;font-size:28px;}
+.epslbl{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+.etbl{width:100%;border-collapse:collapse;font-size:12px;}
+.etbl th{text-align:right;padding:7px 12px;font-size:11px;font-weight:500;color:rgba(255,255,255,.3);border-bottom:1px solid rgba(255,255,255,.06);}
+.etbl th:first-child{text-align:left;}
+.etbl td{text-align:right;padding:9px 12px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.65);}
+.etbl td:first-child{text-align:left;color:rgba(255,255,255,.45);}
+.etbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.bbadge{font-size:10px;font-weight:600;padding:3px 7px;border-radius:4px;}
+.bbbeat{background:rgba(74,196,123,.12);color:var(--green);border:1px solid rgba(74,196,123,.25);}
+.bbmiss{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.tickerrow{display:flex;gap:10px;align-items:center;}
+.fca{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:12px 16px;margin-top:22px;font-size:12px;color:rgba(255,255,255,.38);line-height:1.65;}
+.fca strong{color:rgba(201,168,76,.65);}
+.demo-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.demo-tab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);background:transparent;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.demo-tab:hover{border-color:rgba(201,168,76,.3);color:rgba(255,255,255,.8);}
+.demo-tab.active{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold);}
+.earn-bar-chart{display:flex;align-items:flex-end;gap:4px;height:140px;margin:20px 0 4px;padding:0 4px;}
+.ebc-group{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;}
+.ebc-bars{display:flex;align-items:flex-end;gap:2px;width:100%;}
+.ebc-bar{flex:1;border-radius:3px 3px 0 0;min-height:2px;}
+.ebc-bar.actual{background:var(--gold);}
+.ebc-bar.estimate{background:rgba(255,255,255,.15);}
+.ebc-qlabel{font-size:9px;color:rgba(255,255,255,.3);margin-top:4px;text-align:center;}
+.earn-bar-legend{display:flex;gap:16px;justify-content:center;margin-bottom:12px;}
+.earn-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4);}
+.earn-legend-dot{width:12px;height:12px;border-radius:2px;}
+.port-pie-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.port-legend{display:flex;flex-direction:column;gap:8px;}
+.port-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6);}
+.port-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.isa-chart-wrap{padding:20px;background:rgba(0,0,0,.15);border-radius:10px;margin-bottom:18px;}
+.isa-chart-legend{display:flex;gap:20px;margin-top:10px;justify-content:center;flex-wrap:wrap;}
+.isa-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5);}
+.isa-legend-dot{width:20px;height:3px;border-radius:2px;}
+@media(max-width:768px){
+  .applayout{flex-direction:column;}
+  #sidebar{width:100%;height:auto;position:relative;}
+  .sblogo{padding:12px 16px;border-bottom:none;border-right:1px solid rgba(255,255,255,.08);}
+  .sbnav{display:flex;flex-direction:row;flex-wrap:wrap;padding:8px;gap:4px;flex:1;}
+  .sblbl{display:none;}
+  .sbitem{padding:7px 10px;margin-bottom:0;}
+  .sbitdesc{display:none;}
+  .sbpro{display:none;}
+  #mainpanel{padding:20px 16px;max-width:100%;}
+  .twocol{grid-template-columns:1fr;}
+  .fieldrow{grid-template-columns:1fr;}
+  .senswrap{overflow-x:auto;}
+  .senstbl{min-width:380px;}
+}
+</style>
+
+<script>
+// ================================================================
+// TOOL JAVASCRIPT
+// ================================================================
+const FMP_KEY = 'YOUR_FMP_API_KEY_HERE';
+const FMP = 'https://financialmodelingprep.com/api/v3';
+const BC = ['#C9A84C','#4AC47B','#60A5FA','#F87171','#A78BFA','#34D399','#FB923C','#E879F9','#94A3B8','#F59E0B'];
+const SECS = ['Technology','Financials','Industrials','Consumer Disc.','Healthcare','Energy','Materials','Utilities','Real Estate','Consumer Staples','Telecom','Global Equity','Gold/Commodities','Other'];
+
+function chkLimit(){const t=new Date().toISOString().split('T')[0];let d=JSON.parse(localStorage.getItem('el_lk')||'{}');if(d.date!==t)d={date:t,count:0};return{ok:d.count<5,rem:5-d.count,d};}
+function bmpLimit(){const t=new Date().toISOString().split('T')[0];let d=JSON.parse(localStorage.getItem('el_lk')||'{}');if(d.date!==t)d={date:t,count:0};d.count++;localStorage.setItem('el_lk',JSON.stringify(d));}
+function fM(v){return'£'+Math.round(v).toLocaleString('en-GB')+'m';}
+function fG(v){return'£'+v.toFixed(2);}
+function fP(v){return(v*100).toFixed(1)+'%';}
+function fK(v){return v>=1000000?'£'+(v/1000000).toFixed(2)+'m':'£'+(v/1000).toFixed(0)+'k';}
+function markAuto(bid,iid){const b=document.getElementById(bid);if(b)b.innerHTML='<span class="autobadge">auto-filled</span>';const inp=document.getElementById(iid);if(inp)inp.classList.add('autofilled');}
+
+// ── DCF ──────────────────────────────────────────────────────────
+function renderDCF(){
+  document.getElementById('pdcf').innerHTML=`<div class="toolhdr"><div class="tooley">Valuation</div><h1 class="toolh1">DCF Calculator</h1><p class="toolintro">Two-stage discounted cash flow model. Enter any ticker to auto-fill financials, or input your own assumptions manually.</p></div><div class="card"><div class="csec">Auto-fill from Ticker (5 free/day)</div><div class="tickerrow"><input type="text" id="dti" value="RR.L" placeholder="e.g. RR.L · AAPL · NVDA" style="max-width:220px;font-family:'JetBrains Mono',monospace"/><button class="btn" id="dlb" onclick="dcfLoad()">Load Data</button></div><div id="dst"></div></div><div class="twocol"><div><div class="card"><div class="csec">Company</div><div class="field"><div class="labelrow"><label>Company Name</label><span id="bn"></span></div><input type="text" id="dn" value="Rolls-Royce Holdings plc" oninput="dcfCalcRender()"/></div></div><div class="card"><div class="csec">Base Year Financials</div><div class="field"><div class="labelrow"><label>Base Year FCF (£m)</label><span id="bf"></span></div><input type="number" id="df" value="1000" oninput="dcfCalcRender()"/><div class="hint">Operating cash flow minus capex</div></div><div class="field"><div class="labelrow"><label>FCF Margin (%)</label><span id="bm"></span></div><input type="number" id="dm" value="10" step="0.1" oninput="dcfCalcRender()"/></div></div><div class="card"><div class="csec">Growth Assumptions</div><div class="field"><label>Revenue Growth — Years 1–5 (%)</label><input type="number" id="dg1" value="6" step="0.5" oninput="dcfCalcRender()"/><div class="hint">High-growth phase</div></div><div class="field"><label>Revenue Growth — Years 6–10 (%)</label><input type="number" id="dg2" value="3" step="0.5" oninput="dcfCalcRender()"/></div></div><div class="card"><div class="csec">Discount Rate</div><div class="field"><label>WACC (%)</label><input type="number" id="dw" value="12" step="0.5" oninput="dcfCalcRender()"/><div class="hint">UK large caps: 9–11% · Cyclicals: 11–14%</div></div><div class="field"><label>Terminal Growth Rate (%)</label><input type="number" id="dt" value="2" step="0.25" oninput="dcfCalcRender()"/><div class="hint">Typically 1.5–2.5%</div></div></div><div class="card"><div class="csec">Capital Structure</div><div class="field"><div class="labelrow"><label>Net Debt (£m)</label><span id="bd"></span></div><input type="number" id="dd" value="600" oninput="dcfCalcRender()"/></div><div class="field"><div class="labelrow"><label>Shares Outstanding (m)</label><span id="bs"></span></div><input type="number" id="dsh" value="850" oninput="dcfCalcRender()"/></div><div class="field"><div class="labelrow"><label>Current Share Price (£)</label><span id="bp"></span></div><input type="number" id="dp" value="12.836" step="0.01" oninput="dcfCalcRender()"/><div class="hint">GBX ÷ 100 = GBP (e.g. 1,283p = £12.83)</div></div></div></div><div><div class="card" style="text-align:center;padding:28px 22px;margin-bottom:18px"><div class="csec" style="text-align:center">Intrinsic Value Per Share</div><div class="resbig" id="divps">£—</div><div class="resverd" id="dverd"></div><div class="rescur" id="dcur"></div></div><div class="card" style="margin-bottom:18px"><div class="csec">Valuation Bridge</div><div id="dbridge"></div></div><div class="card"><div class="csec">10-Year Projection</div><table class="projtbl"><thead><tr><th style="text-align:left">Yr</th><th>Revenue</th><th>FCF</th><th>Disc.Factor</th><th>PV of FCF</th></tr></thead><tbody id="dprojtb"></tbody></table></div></div></div><div class="card"><div class="csec">Sensitivity Analysis — Intrinsic Value Per Share (£)</div><p style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:14px">25 combinations of WACC ±2% and Terminal Growth Rate ±1% · Gold border = base case</p><div class="senswrap"><table class="senstbl" id="dstbl"></table></div><div class="sensleg"><div class="senslegitem"><div class="senslegdot" style="background:rgba(74,196,123,.15);border:1px solid #4AC47B"></div>Green: &gt;20% upside</div><div class="senslegitem"><div class="senslegdot" style="background:rgba(201,168,76,.08);border:1px solid #E2C97E"></div>Amber: within ±20%</div><div class="senslegitem"><div class="senslegdot" style="background:rgba(239,68,68,.15);border:1px solid #F87171"></div>Red: &gt;20% downside</div></div></div><div class="fca"><strong>Educational purposes only.</strong> Not FCA regulated. Always verify against official company filings.</div>`;
+  dcfCalcRender();
+}
+
+function dcfCalcRender(){
+  const fcf=parseFloat(document.getElementById('df').value)||0,mar=(parseFloat(document.getElementById('dm').value)||0)/100,g1=(parseFloat(document.getElementById('dg1').value)||0)/100,g2=(parseFloat(document.getElementById('dg2').value)||0)/100,wacc=(parseFloat(document.getElementById('dw').value)||0)/100,tgr=(parseFloat(document.getElementById('dt').value)||0)/100,debt=parseFloat(document.getElementById('dd').value)||0,shr=parseFloat(document.getElementById('dsh').value)||1,px=parseFloat(document.getElementById('dp').value)||0;
+  if(wacc<=tgr||mar<=0||shr<=0){document.getElementById('divps').textContent='—';document.getElementById('dverd').textContent='WACC must exceed terminal growth rate';document.getElementById('dverd').style.color='rgba(255,255,255,.35)';return;}
+  const br=fcf/mar;let pvs=0,rows=[],lf=0;
+  for(let n=1;n<=10;n++){const rv=br*Math.pow(1+g1,Math.min(n,5))*Math.pow(1+g2,Math.max(n-5,0));const fc=rv*mar;const df=1/Math.pow(1+wacc,n);const pv=fc*df;pvs+=pv;lf=fc;rows.push({n,rv,fc,df,pv});}
+  const tv=(lf*(1+tgr))/(wacc-tgr),pvtv=tv/Math.pow(1+wacc,10),ev=pvs+pvtv,eq=ev-debt,ivps=eq/shr,up=px>0?(ivps-px)/px:null;
+  document.getElementById('divps').innerHTML=fG(ivps);
+  let vc,vt;
+  if(up===null){vc='rgba(255,255,255,.4)';vt='Enter a current price to see upside / downside';}
+  else if(up>0.2){vc='#4AC47B';vt='▲ Model implies '+fP(up)+' upside';}
+  else if(up<-0.2){vc='#F87171';vt='▼ Model implies '+fP(Math.abs(up))+' downside';}
+  else{vc='#E2C97E';vt='→ Fairly valued within ±20% at these inputs';}
+  document.getElementById('dverd').innerHTML=vt;document.getElementById('dverd').style.color=vc;
+  if(px>0)document.getElementById('dcur').innerHTML='Current: '+fG(px);
+  document.getElementById('dbridge').innerHTML=[['Σ PV of FCFs (Yrs 1–10)',fM(pvs),false],['Terminal Value',fM(tv),false],['PV of Terminal Value',fM(pvtv),false],['Enterprise Value',fM(ev),true],['Less: Net Debt',fM(debt),false],['Equity Value',fM(eq),true],['÷ Shares Outstanding',Math.round(shr)+'m',false]].map(([l,v,b])=>'<div class="brow'+(b?' bold':'')+'"><span class="blabel">'+l+'</span><span class="bval">'+v+'</span></div>').join('');
+  document.getElementById('dprojtb').innerHTML=rows.map(r=>'<tr><td>'+r.n+'</td><td>'+fM(r.rv)+'</td><td>'+fM(r.fc)+'</td><td>'+r.df.toFixed(4)+'</td><td>'+fM(r.pv)+'</td></tr>').join('');
+  const wo=[-0.02,-0.01,0,0.01,0.02],to_=[-0.01,-0.005,0,0.005,0.01];
+  function sv(w,t){if(w<=t||mar<=0||shr<=0)return null;const br2=fcf/mar;let ps=0,lf2=0;for(let n=1;n<=10;n++){const rv=br2*Math.pow(1+g1,Math.min(n,5))*Math.pow(1+g2,Math.max(n-5,0));const fc=rv*mar;ps+=fc/Math.pow(1+w,n);lf2=fc;}const t2=(lf2*(1+t))/(w-t);return(ps+t2/Math.pow(1+w,10)-debt)/shr;}
+  let h='<thead><tr><th>WACC ↓ · TGR →</th>'+to_.map(t=>'<th style="'+(t===0?'color:#C9A84C;font-weight:700':'')+'">'+(((tgr+t)*100).toFixed(1))+'%'+(t===0?'<div style="font-size:9px;color:rgba(201,168,76,.4)">base</div>':'')+'</th>').join('')+'</tr></thead><tbody>';
+  wo.forEach(w=>{h+='<tr><th style="'+(w===0?'color:#C9A84C;font-weight:700':'')+'">'+(((wacc+w)*100).toFixed(0))+'%'+(w===0?'<div style="font-size:9px;color:rgba(201,168,76,.4)">base</div>':'')+'</th>';to_.forEach(t=>{const v=sv(wacc+w,tgr+t);const isB=w===0&&t===0;let c='sa';if(v!==null&&px>0){if(v>px*1.2)c='sg';else if(v<px*0.8)c='sr';}if(isB)c+=' sb2';h+='<td class="'+c+'">'+(v!==null?'£'+v.toFixed(2):'—')+'</td>';});h+='</tr>';});
+  document.getElementById('dstbl').innerHTML=h+'</tbody>';
+}
+
+async function dcfLoad(){
+  if(FMP_KEY==='YOUR_FMP_API_KEY_HERE'){document.getElementById('dst').innerHTML='<div class="banner bwarn">⚠ No API key set. Edit the HTML file and replace YOUR_FMP_API_KEY_HERE with your key from financialmodelingprep.com (free tier: 250 calls/day)</div>';return;}
+  const {ok,rem}=chkLimit();
+  if(!ok){document.getElementById('dst').innerHTML='<div class="banner bwarn">⚠ 5 free lookups used today. Upgrade to Pro for unlimited access.</div>';return;}
+  const ticker=document.getElementById('dti').value.trim().toUpperCase();if(!ticker)return;
+  const btn=document.getElementById('dlb');btn.textContent='Loading…';btn.disabled=true;document.getElementById('dst').innerHTML='';
+  try{
+    const[pr,cfr,ir,br]=await Promise.all([fetch(FMP+'/profile/'+ticker+'?apikey='+FMP_KEY),fetch(FMP+'/cash-flow-statement/'+ticker+'?limit=1&apikey='+FMP_KEY),fetch(FMP+'/income-statement/'+ticker+'?limit=1&apikey='+FMP_KEY),fetch(FMP+'/balance-sheet-statement/'+ticker+'?limit=1&apikey='+FMP_KEY)]);
+    const[p,cf,inc,bal]=await Promise.all([pr.json(),cfr.json(),ir.json(),br.json()]);
+    if(!p||!p[0]?.companyName){document.getElementById('dst').innerHTML='<div class="banner berror">✗ Ticker not found. Try with exchange suffix e.g. RR.L, ULVR.L</div>';return;}
+    const pp=p[0],c=cf[0]||{},i=inc[0]||{},b=bal[0]||{};
+    const isGBX=pp.currency==='GBp'||pp.currency==='GBX',price=isGBX?(pp.price||0)/100:(pp.price||0),div=isGBX?100000000:1000000;
+    const fcfM=((c.operatingCashFlow||0)-Math.abs(c.capitalExpenditure||0))/div,revM=(i.revenue||0)/div,mar=revM>0?fcfM/revM:0;
+    const nd=((b.totalDebt||0)-(b.cashAndCashEquivalents||0))/div,sh=(pp.sharesOutstanding||0)/1000000,yr=c.calendarYear||i.calendarYear||'N/A';
+    document.getElementById('dn').value=pp.companyName;
+    if(fcfM>0){document.getElementById('df').value=Math.round(fcfM);markAuto('bf','df');}
+    if(mar>0){document.getElementById('dm').value=(mar*100).toFixed(1);markAuto('bm','dm');}
+    if(nd!==0){document.getElementById('dd').value=Math.round(nd);markAuto('bd','dd');}
+    if(sh>0){document.getElementById('dsh').value=Math.round(sh*10)/10;markAuto('bs','dsh');}
+    if(price>0){document.getElementById('dp').value=Math.round(price*100)/100;markAuto('bp','dp');}
+    markAuto('bn','dn');bmpLimit();
+    const nl=chkLimit();
+    document.getElementById('dst').innerHTML='<div class="banner bsuccess">✓ Data loaded · FY'+yr+(isGBX?' · Price converted GBX→GBP':'')+' · '+nl.rem+' free lookup'+(nl.rem!==1?'s':'')+' remaining today</div>';
+    dcfCalcRender();
+  }catch(e){document.getElementById('dst').innerHTML='<div class="banner berror">✗ Connection error. Check your internet and try again.</div>';}
+  finally{btn.textContent='Load Data';btn.disabled=false;}
+}
+
+// ── ISA ──────────────────────────────────────────────────────────
+function renderISA(){
+  document.getElementById('pisa').innerHTML=`<div class="toolhdr"><div class="tooley">Planning</div><h1 class="toolh1">ISA Optimiser</h1><p class="toolintro">Project your Stocks & Shares ISA to retirement across three return scenarios. All growth completely tax-free inside the ISA wrapper.</p></div><div class="twocol"><div class="card"><div class="csec">Your Details</div><div class="field"><label>Current Age</label><input type="number" id="ia" value="17" oninput="isaRender()"/></div><div class="field"><label>Current ISA Balance (£)</label><input type="number" id="iv" value="5100" oninput="isaRender()"/><div class="hint">Total current portfolio value</div></div><div class="field"><label>Annual Contribution (£)</label><input type="number" id="ic" value="3000" oninput="isaRender()"/><div class="hint">Maximum ISA allowance: £20,000/year</div></div><div class="field"><label>Target Retirement Age</label><input type="number" id="ir" value="65" oninput="isaRender()"/><div class="hint">UK state pension age: 67</div></div><div id="isum" style="margin-top:14px;padding:12px;background:rgba(201,168,76,.06);border-radius:7px;border:1px solid rgba(201,168,76,.14);font-size:13px;color:rgba(255,255,255,.5)"></div></div><div><div class="csec" style="margin-bottom:12px;">Projected Value at Retirement</div><div id="iscens"></div><div class="card" style="background:rgba(201,168,76,.04)"><p style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.75"><strong style="color:#C9A84C">ISA advantage:</strong> All growth and withdrawals 100% tax-free. No CGT. No dividend tax. No income tax on drawdown.</p></div></div></div><div class="isa-chart-wrap"><div class="csec">Growth Projection</div><svg id="isa-tool-chart" width="100%" viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block"></svg><div class="isa-chart-legend"><div class="isa-legend-item"><div class="isa-legend-dot" style="background:rgba(255,255,255,0.35)"></div>Conservative (5%)</div><div class="isa-legend-item"><div class="isa-legend-dot" style="background:#C9A84C"></div>Base Case (8%)</div><div class="isa-legend-item"><div class="isa-legend-dot" style="background:#4AC47B"></div>Optimistic (11%)</div></div></div><div class="card"><div class="csec">Balance at Key Ages</div><table class="agetbl"><thead><tr><th>Age</th><th>Conservative (5%)</th><th>Base Case (8%)</th><th>Optimistic (11%)</th></tr></thead><tbody id="iatb"></tbody></table></div><div class="fca"><strong>Educational purposes only.</strong> Projections assume constant annual returns and are not guaranteed. Not financial advice.</div>`;
+  isaRender();
+}
+
+function isaProj(r,age,val,c,ret){let v=val;const y=Math.max(0,ret-age);for(let i=0;i<y;i++)v=(v+c)*(1+r);return v;}
+
+function isaRender(){
+  const age=parseInt(document.getElementById('ia').value)||17,val=parseFloat(document.getElementById('iv').value)||0,c=parseFloat(document.getElementById('ic').value)||0,ret=parseInt(document.getElementById('ir').value)||65;
+  const yrs=Math.max(0,ret-age),tc=val+(c*yrs);
+  document.getElementById('isum').innerHTML='Years until retirement: <strong style="color:#E2C97E">'+yrs+'</strong> &nbsp;·&nbsp; Total contributions: <strong style="color:#E2C97E">'+fK(tc)+'</strong>';
+  const sc=[{l:'Conservative',r:.05,c:'rgba(255,255,255,0.4)',d:'5% p.a. — cautious index / bonds'},{l:'Base Case',r:.08,c:'#C9A84C',d:'8% p.a. — FTSE All-World average'},{l:'Optimistic',r:.11,c:'#4AC47B',d:'11% p.a. — concentrated equities'}];
+  const vals=sc.map(s=>isaProj(s.r,age,val,c,ret));const mx=Math.max(...vals);
+  document.getElementById('iscens').innerHTML=sc.map((s,i)=>{const v=vals[i];const g=v-tc;const bw=mx>0?(v/mx)*100:0;return'<div class="sccard"><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:13px;font-weight:600;color:'+s.c+'">'+s.l+'</div><div style="font-size:11px;color:rgba(255,255,255,.3)">'+s.d+'</div></div><div style="text-align:right"><div style="font-family:\'Fraunces\',serif;font-size:26px;color:'+s.c+'">'+fK(v)+'</div><div style="font-size:11px;color:rgba(255,255,255,.3)">+'+fK(g)+' growth</div></div></div><div class="scbar"><div class="scfill" style="width:'+bw+'%;background:'+s.c+'"></div></div></div>';}).join('');
+  const ages=[30,40,50,60,ret];
+  document.getElementById('iatb').innerHTML=ages.filter(a=>a>age).map(a=>'<tr><td>'+a+(a===ret?' ★':'')+'</td>'+sc.map(s=>'<td>'+fK(isaProj(s.r,age,val,c,a))+'</td>').join('')+'</tr>').join('');
+  drawISAChart(age,val,c,ret,sc);
+}
+
+function drawISAChart(age,val,c,ret,sc){
+  const svg=document.getElementById('isa-tool-chart');if(!svg)return;
+  svg.innerHTML='';
+  const W=700,H=200,PL=64,PR=24,PT=20,PB=36;
+  const years=Math.max(ret-age,1),steps=Math.min(years,50);
+  const allV=sc.flatMap(s=>Array.from({length:steps+1},(_,i)=>isaProj(s.r,age,val,c,age+Math.round(i*years/steps))));
+  const maxV=Math.max(...allV)*1.06;
+  const toX=i=>PL+(i/steps)*(W-PL-PR);
+  const toY=v=>PT+(1-v/maxV)*(H-PT-PB);
+  for(let i=0;i<=4;i++){
+    const y=PT+(i/4)*(H-PT-PB),v=maxV*(1-i/4);
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',PL);ln.setAttribute('x2',W-PR);ln.setAttribute('y1',y);ln.setAttribute('y2',y);
+    ln.setAttribute('stroke','rgba(255,255,255,0.06)');ln.setAttribute('stroke-width','1');svg.appendChild(ln);
+    const lb=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lb.setAttribute('x',PL-6);lb.setAttribute('y',y+4);lb.setAttribute('text-anchor','end');
+    lb.setAttribute('fill','rgba(255,255,255,0.3)');lb.setAttribute('font-size','10');lb.setAttribute('font-family','DM Sans,sans-serif');
+    lb.textContent=fK(v);svg.appendChild(lb);
+  }
+  [0,0.25,0.5,0.75,1].forEach(t=>{
+    const a=Math.round(age+t*years),x=PL+t*(W-PL-PR);
+    const lb=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lb.setAttribute('x',x);lb.setAttribute('y',H-PB+14);lb.setAttribute('text-anchor','middle');
+    lb.setAttribute('fill','rgba(255,255,255,0.3)');lb.setAttribute('font-size','10');lb.setAttribute('font-family','DM Sans,sans-serif');
+    lb.textContent='Age '+a;svg.appendChild(lb);
+  });
+  sc.forEach((s,si)=>{
+    const pts=Array.from({length:steps+1},(_,i)=>{const a=age+Math.round(i*years/steps);return[toX(i),toY(isaProj(s.r,age,val,c,a))];});
+    const d=pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke',s.c);
+    path.setAttribute('stroke-width',si===1?'2.5':'1.8');path.setAttribute('stroke-linecap','round');
+    svg.appendChild(path);
+    const len=path.getTotalLength();
+    path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+    path.style.transition='stroke-dashoffset 1.4s ease '+(si*0.25)+'s';
+    requestAnimationFrame(()=>{path.style.strokeDashoffset=0;});
+  });
+}
+
+// ── PORTFOLIO ─────────────────────────────────────────────────────
+let HH=[{t:'SWDA',n:'iShares MSCI World ETF',v:5100,s:'Global Equity'},{t:'RR.L',n:'Rolls-Royce Holdings',v:219,s:'Industrials'},{t:'NBIS',n:'Nebius Group',v:88,s:'Technology'},{t:'SGLN',n:'iShares Gold ETF',v:128,s:'Materials'},{t:'DBK',n:'Deutsche Bank',v:175,s:'Financials'}];
+
+function renderPortfolio(){
+  document.getElementById('pport').innerHTML=`<div class="toolhdr"><div class="tooley">Risk Analysis</div><h1 class="toolh1">Portfolio Analyser</h1><p class="toolintro">Sector exposure, HHI concentration score, and automated risk flags for your holdings. Add or edit positions below.</p></div><div class="card"><div class="csec">Holdings</div><div style="overflow-x:auto"><table class="htbl"><thead><tr><th>Ticker</th><th>Name</th><th>Value (£)</th><th>Sector</th><th>Weight</th><th></th></tr></thead><tbody id="htbody"></tbody></table></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><button class="btnout" onclick="addH()">+ Add Position</button><div id="htotal" style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:14px"></div></div></div><div class="twocol"><div><div class="card"><div class="csec">Concentration Score (HHI)</div><div style="text-align:center;padding:16px 0"><div id="phhi" style="font-family:'Fraunces',serif;font-size:48px;line-height:1"></div><div id="phhil" style="font-size:14px;font-weight:600;margin-top:8px"></div><div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:4px">&lt;1,500 diversified · 1,500–2,500 moderate · &gt;2,500 concentrated</div></div><div id="pflags"></div></div><div class="card"><div class="csec">Sector Exposure</div><div id="psecs"></div></div></div><div class="card"><div class="csec">Portfolio Breakdown</div><div class="port-pie-wrap"><svg id="port-pie-svg" width="180" height="180" viewBox="0 0 200 200"></svg><div class="port-legend" id="port-legend"></div></div></div></div><div class="fca"><strong>Educational purposes only.</strong> Not financial advice. Sector classifications are approximate.</div>`;
+  renderHRows();
+}
+
+function renderHRows(){
+  const tot=HH.reduce((s,h)=>s+(h.v||0),0);
+  const tb=document.getElementById('htbody');if(!tb)return;
+  tb.innerHTML=HH.map((h,i)=>'<tr><td><input type="text" value="'+h.t+'" style="width:70px" oninput="HH['+i+'].t=this.value.toUpperCase();portUpd()"/></td><td><input type="text" value="'+h.n+'" style="min-width:150px" oninput="HH['+i+'].n=this.value;portUpd()"/></td><td><input type="number" value="'+h.v+'" style="width:90px" oninput="HH['+i+'].v=parseFloat(this.value)||0;portUpd()"/></td><td><select onchange="HH['+i+'].s=this.value;portUpd()">'+SECS.map(s=>'<option value="'+s+'"'+(s===h.s?' selected':'')+'>'+s+'</option>').join('')+'</select></td><td style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:#C9A84C">'+(tot>0?((h.v/tot)*100).toFixed(1):'0.0')+'%</td><td><button class="rmbtn" onclick="HH.splice('+i+',1);renderHRows();portUpd()">×</button></td></tr>').join('');
+  portUpd();
+}
+function addH(){HH.push({t:'',n:'',v:0,s:'Technology'});renderHRows();}
+
+function portUpd(){
+  const tot=HH.reduce((s,h)=>s+(h.v||0),0);
+  const te=document.getElementById('htotal');if(te)te.textContent='Total: £'+tot.toLocaleString('en-GB');
+  const hhi=HH.reduce((s,h)=>s+Math.pow(tot>0?(h.v/tot)*100:0,2),0);
+  const he=document.getElementById('phhi'),hl=document.getElementById('phhil');
+  if(he){const col=hhi<1500?'#4AC47B':hhi<2500?'#E2C97E':'#F87171';he.textContent=Math.round(hhi).toLocaleString();he.style.color=col;hl.style.color=col;hl.textContent=hhi<1500?'Diversified':hhi<2500?'Moderately Concentrated':'Highly Concentrated';}
+  const flags=[];
+  if(HH.some(h=>tot>0&&h.v/tot>0.4))flags.push({t:'⚠ Single position >40% of portfolio',bad:true});
+  const sec={};HH.forEach(h=>{sec[h.s]=(sec[h.s]||0)+(tot>0?h.v/tot*100:0);});
+  const ts=Object.entries(sec).sort((a,b)=>b[1]-a[1])[0];
+  if(ts&&ts[1]>50)flags.push({t:'⚠ '+ts[0]+' sector >50% of portfolio',bad:true});
+  if(HH.length<5)flags.push({t:'⚠ Fewer than 5 positions — limited diversification',bad:true});
+  if(hhi>2500)flags.push({t:'⚠ High concentration risk (HHI > 2,500)',bad:true});
+  if(flags.length===0)flags.push({t:'✓ No major concentration flags detected',bad:false});
+  const fe=document.getElementById('pflags');if(fe)fe.innerHTML=flags.map(f=>'<div style="font-size:12px;padding:6px 10px;margin-bottom:4px;border-radius:5px;background:'+(f.bad?'rgba(248,113,113,.08)':'rgba(74,196,123,.08)')+';color:'+(f.bad?'#F87171':'#4AC47B')+';border:1px solid '+(f.bad?'rgba(248,113,113,.2)':'rgba(74,196,123,.2)')+'">'+f.t+'</div>').join('');
+  const ss=Object.entries(sec).sort((a,b)=>b[1]-a[1]);
+  const se=document.getElementById('psecs');if(se)se.innerHTML=ss.map(([s,p],i)=>'<div class="barrow"><div class="bartop"><span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:'+BC[i%BC.length]+';display:inline-block"></span>'+s+'</span><span style="font-family:\'JetBrains Mono\',monospace;color:'+BC[i%BC.length]+'">'+p.toFixed(1)+'%</span></div><div class="bartrack"><div class="barfill" style="width:'+p+'%;background:'+BC[i%BC.length]+'"></div></div></div>').join('');
+  drawPortPie(tot);
+}
+
+function drawPortPie(tot){
+  const svg=document.getElementById('port-pie-svg'),legend=document.getElementById('port-legend');
+  if(!svg||!legend)return;
+  svg.innerHTML='';legend.innerHTML='';
+  const sorted=[...HH].sort((a,b)=>b.v-a.v);
+  const cx=100,cy=100,r=85;let angle=-90;
+  sorted.forEach((h,i)=>{
+    if(!h.v||tot===0)return;
+    const pct=h.v/tot,sweep=pct*360;
+    const r1=angle*(Math.PI/180),r2=(angle+sweep)*(Math.PI/180);
+    const x1=cx+r*Math.cos(r1),y1=cy+r*Math.sin(r1),x2=cx+r*Math.cos(r2),y2=cy+r*Math.sin(r2);
+    const large=sweep>180?1:0;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`);
+    path.setAttribute('fill',BC[i%BC.length]);path.setAttribute('opacity','0.85');
+    path.setAttribute('stroke','rgba(0,0,0,0.2)');path.setAttribute('stroke-width','1');
+    svg.appendChild(path);
+    if(pct>0.09){
+      const mid=(angle+sweep/2)*(Math.PI/180);
+      const lx=cx+r*0.6*Math.cos(mid),ly=cy+r*0.6*Math.sin(mid);
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',lx);txt.setAttribute('y',ly);txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('dominant-baseline','middle');txt.setAttribute('fill','#fff');txt.setAttribute('font-size','10');
+      txt.setAttribute('font-weight','700');txt.setAttribute('font-family','DM Sans,sans-serif');
+      txt.textContent=h.t+' '+(pct*100).toFixed(0)+'%';svg.appendChild(txt);
+    }
+    angle+=sweep;
+    const li=document.createElement('div');li.className='port-legend-item';
+    li.innerHTML=`<div class="port-legend-dot" style="background:${BC[i%BC.length]}"></div><span>${h.t||'?'} — £${(h.v||0).toLocaleString('en-GB')}</span>`;
+    legend.appendChild(li);
+  });
+}
+
+// ── EARNINGS ──────────────────────────────────────────────────────
+const DEMO_EARNINGS = {
+  'NVDA': { name:'NVIDIA Corporation', data:[
+    {date:'Q4 2024',actual:0.89,estimate:0.85},{date:'Q3 2024',actual:0.74,estimate:0.64},
+    {date:'Q2 2024',actual:0.68,estimate:0.60},{date:'Q1 2024',actual:0.61,estimate:0.52},
+    {date:'Q4 2023',actual:0.49,estimate:0.40},{date:'Q3 2023',actual:0.40,estimate:0.32},
+    {date:'Q2 2023',actual:0.27,estimate:0.22},{date:'Q1 2023',actual:0.09,estimate:0.08}
+  ]},
+  'JPM': { name:'JPMorgan Chase & Co.', data:[
+    {date:'Q4 2024',actual:4.81,estimate:4.03},{date:'Q3 2024',actual:4.37,estimate:4.01},
+    {date:'Q2 2024',actual:4.40,estimate:4.19},{date:'Q1 2024',actual:4.44,estimate:4.11},
+    {date:'Q4 2023',actual:3.97,estimate:3.32},{date:'Q3 2023',actual:4.33,estimate:3.96},
+    {date:'Q2 2023',actual:4.75,estimate:3.97},{date:'Q1 2023',actual:4.10,estimate:3.41}
+  ]},
+  'AAPL': { name:'Apple Inc.', data:[
+    {date:'Q4 2024',actual:1.64,estimate:1.60},{date:'Q3 2024',actual:1.40,estimate:1.35},
+    {date:'Q2 2024',actual:1.53,estimate:1.50},{date:'Q1 2024',actual:2.18,estimate:2.10},
+    {date:'Q4 2023',actual:1.46,estimate:1.39},{date:'Q3 2023',actual:1.26,estimate:1.19},
+    {date:'Q2 2023',actual:1.52,estimate:1.43},{date:'Q1 2023',actual:1.88,estimate:1.94}
+  ]},
+  'TSLA': { name:'Tesla, Inc.', data:[
+    {date:'Q4 2024',actual:0.73,estimate:0.76},{date:'Q3 2024',actual:0.72,estimate:0.60},
+    {date:'Q2 2024',actual:0.52,estimate:0.62},{date:'Q1 2024',actual:0.45,estimate:0.51},
+    {date:'Q4 2023',actual:0.71,estimate:0.73},{date:'Q3 2023',actual:0.66,estimate:0.73},
+    {date:'Q2 2023',actual:0.91,estimate:0.82},{date:'Q1 2023',actual:0.85,estimate:0.86}
+  ]},
+  'GOOGL': { name:'Alphabet Inc. (Google)', data:[
+    {date:'Q4 2024',actual:2.15,estimate:2.01},{date:'Q3 2024',actual:2.12,estimate:1.85},
+    {date:'Q2 2024',actual:1.89,estimate:1.84},{date:'Q1 2024',actual:1.89,estimate:1.53},
+    {date:'Q4 2023',actual:1.64,estimate:1.59},{date:'Q3 2023',actual:1.55,estimate:1.45},
+    {date:'Q2 2023',actual:1.44,estimate:1.34},{date:'Q1 2023',actual:1.17,estimate:1.07}
+  ]}
+};
+
+let activeEarnTicker = 'NVDA';
+
+function renderEarnings(){
+  document.getElementById('pearn').innerHTML=`
+  <div class="toolhdr"><div class="tooley">Fundamentals</div><h1 class="toolh1">Earnings Tracker</h1><p class="toolintro">Actual EPS vs analyst consensus over the last 8 quarters. Beat/miss history at a glance. Demo data loaded below — live lookup for any ticker requires an API key.</p></div>
+  <div class="card"><div class="csec">Demo Companies</div>
+    <div class="demo-tabs">
+      <button class="demo-tab active" onclick="loadDemoEarnings('NVDA',this)">NVDA</button>
+      <button class="demo-tab" onclick="loadDemoEarnings('JPM',this)">JPM</button>
+      <button class="demo-tab" onclick="loadDemoEarnings('AAPL',this)">AAPL</button>
+      <button class="demo-tab" onclick="loadDemoEarnings('TSLA',this)">TSLA</button>
+      <button class="demo-tab" onclick="loadDemoEarnings('GOOGL',this)">GOOGL</button>
+    </div>
+    <div id="earn-demo-area"></div>
+  </div>
+  <div class="card" style="margin-top:0"><div class="csec">Live Ticker Lookup (API key required)</div>
+    <div class="tickerrow"><input type="text" id="eti" placeholder="e.g. MSFT · RR.L · AMZN" style="max-width:220px;font-family:'JetBrains Mono',monospace"/><button class="btn" id="elb" onclick="loadEarn()">Load Earnings</button></div>
+    <div id="est"></div>
+  </div>
+  <div id="eres"></div>
+  <div class="fca"><strong>Educational purposes only.</strong> Demo data is indicative. Live data sourced from Financial Modeling Prep. Not financial advice.</div>`;
+  loadDemoEarnings('NVDA', document.querySelector('.demo-tab'));
+}
+
+function loadDemoEarnings(ticker, btn){
+  activeEarnTicker = ticker;
+  document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const d = DEMO_EARNINGS[ticker];
+  if(!d) return;
+  const rows = d.data;
+  const beats = rows.filter(r=>r.actual >= r.estimate).length;
+  const bp = Math.round((beats/rows.length)*100);
+  const bc = bp>=70?'#4AC47B':bp>=50?'#E2C97E':'#F87171';
+  const maxVal = Math.max(...rows.flatMap(r=>[Math.abs(r.actual),Math.abs(r.estimate)]));
+  document.getElementById('earn-demo-area').innerHTML = `
+    <div class="epssummary" style="margin-top:16px">
+      <div class="epsstat"><div class="epsval" style="color:${bc}">${bp}%</div><div class="epslbl">Beat Rate</div></div>
+      <div class="epsstat"><div class="epsval" style="color:#4AC47B">${beats}/${rows.length}</div><div class="epslbl">Beats</div></div>
+      <div class="epsstat"><div class="epsval" style="color:#F87171">${rows.length-beats}/${rows.length}</div><div class="epslbl">Misses</div></div>
+    </div>
+    <div style="margin-bottom:8px;font-size:13px;color:rgba(255,255,255,.5)">${d.name}</div>
+    <div class="earn-bar-legend">
+      <div class="earn-legend-item"><div class="earn-legend-dot" style="background:var(--gold)"></div>Actual EPS</div>
+      <div class="earn-legend-item"><div class="earn-legend-dot" style="background:rgba(255,255,255,.2)"></div>Consensus Estimate</div>
+    </div>
+    <div class="earn-bar-chart" id="earn-bars"></div>
+    <table class="etbl" style="margin-top:16px"><thead><tr><th style="text-align:left">Quarter</th><th>Actual EPS</th><th>Consensus</th><th>Surprise</th><th>Result</th></tr></thead>
+    <tbody>${rows.map(r=>{
+      const bt=r.actual>=r.estimate,sp=r.actual-r.estimate,spp=r.estimate!==0?(sp/Math.abs(r.estimate))*100:0;
+      return `<tr><td>${r.date}</td><td style="font-weight:600;color:#fff">$${r.actual.toFixed(2)}</td><td style="color:rgba(255,255,255,.5)">$${r.estimate.toFixed(2)}</td><td style="color:${bt?'#4AC47B':'#F87171'}">${sp>=0?'+':''}${sp.toFixed(2)} (${spp>=0?'+':''}${spp.toFixed(1)}%)</td><td><span class="bbadge ${bt?'bbbeat':'bbmiss'}">${bt?'BEAT':'MISS'}</span></td></tr>`;
+    }).join('')}</tbody></table>`;
+  // Draw bar chart
+  const barsEl = document.getElementById('earn-bars');
+  rows.slice().reverse().forEach(r=>{
+    const aH = Math.max(4,(Math.abs(r.actual)/maxVal)*110);
+    const eH = Math.max(4,(Math.abs(r.estimate)/maxVal)*110);
+    const beat = r.actual >= r.estimate;
+    const grp = document.createElement('div');
+    grp.className='ebc-group';
+    grp.innerHTML=`<div class="ebc-bars"><div class="ebc-bar actual" style="height:${aH}px;background:${beat?'var(--gold)':'#F87171'}"></div><div class="ebc-bar estimate" style="height:${eH}px"></div></div><div class="ebc-qlabel">${r.date.replace(' 20',"'")}</div>`;
+    barsEl.appendChild(grp);
+  });
+}
+
+async function loadEarn(){
+  if(FMP_KEY==='YOUR_FMP_API_KEY_HERE'){document.getElementById('est').innerHTML='<div class="banner bwarn">⚠ No API key set. Replace YOUR_FMP_API_KEY_HERE in the HTML file with your key from financialmodelingprep.com to enable live lookups for any ticker.</div>';return;}
+  const ticker=document.getElementById('eti').value.trim().toUpperCase();if(!ticker)return;
+  const btn=document.getElementById('elb');btn.textContent='Loading…';btn.disabled=true;document.getElementById('est').innerHTML='';
+  try{
+    const res=await fetch(FMP+'/earnings-surprises/'+ticker+'?apikey='+FMP_KEY);
+    const data=await res.json();
+    if(!data||data.length===0){document.getElementById('est').innerHTML='<div class="banner berror">✗ No earnings data found for "'+ticker+'". Check the ticker and try again.</div>';return;}
+    const rows=data.slice(0,8),beats=rows.filter(r=>r.actualEarningResult>=r.estimatedEarning).length,bp=Math.round((beats/rows.length)*100),bc=bp>=70?'#4AC47B':bp>=50?'#E2C97E':'#F87171';
+    const maxVal=Math.max(...rows.flatMap(r=>[Math.abs(r.actualEarningResult||0),Math.abs(r.estimatedEarning||0)]));
+    document.getElementById('eres').innerHTML=`<div class="epssummary"><div class="epsstat"><div class="epsval" style="color:${bc}">${bp}%</div><div class="epslbl">Beat Rate</div></div><div class="epsstat"><div class="epsval" style="color:#4AC47B">${beats}/${rows.length}</div><div class="epslbl">Beats</div></div><div class="epsstat"><div class="epsval" style="color:#F87171">${rows.length-beats}/${rows.length}</div><div class="epslbl">Misses</div></div></div>
+    <div class="earn-bar-legend"><div class="earn-legend-item"><div class="earn-legend-dot" style="background:var(--gold)"></div>Actual EPS</div><div class="earn-legend-item"><div class="earn-legend-dot" style="background:rgba(255,255,255,.2)"></div>Consensus</div></div>
+    <div class="earn-bar-chart" id="live-earn-bars"></div>
+    <div class="card"><div class="csec">Quarter-by-Quarter</div><table class="etbl"><thead><tr><th style="text-align:left">Quarter</th><th>Actual EPS</th><th>Consensus</th><th>Surprise</th><th>Result</th></tr></thead><tbody>${rows.map(r=>{const bt=r.actualEarningResult>=r.estimatedEarning,sp=(r.actualEarningResult||0)-(r.estimatedEarning||0),spp=r.estimatedEarning!==0?(sp/Math.abs(r.estimatedEarning))*100:0;return`<tr><td>${r.date}</td><td style="font-weight:600;color:#fff">${(r.actualEarningResult||0).toFixed(4)}</td><td style="color:rgba(255,255,255,.5)">${(r.estimatedEarning||0).toFixed(4)}</td><td style="color:${bt?'#4AC47B':'#F87171'}">${sp>=0?'+':''}${sp.toFixed(4)} (${spp>=0?'+':''}${spp.toFixed(1)}%)</td><td><span class="bbadge ${bt?'bbbeat':'bbmiss'}">${bt?'BEAT':'MISS'}</span></td></tr>`;}).join('')}</tbody></table></div>`;
+    // Bars
+    const barsEl=document.getElementById('live-earn-bars');
+    rows.slice().reverse().forEach(r=>{
+      const aH=Math.max(4,(Math.abs(r.actualEarningResult||0)/maxVal)*110),eH=Math.max(4,(Math.abs(r.estimatedEarning||0)/maxVal)*110),beat=r.actualEarningResult>=r.estimatedEarning;
+      const grp=document.createElement('div');grp.className='ebc-group';
+      grp.innerHTML=`<div class="ebc-bars"><div class="ebc-bar" style="height:${aH}px;background:${beat?'var(--gold)':'#F87171'};border-radius:3px 3px 0 0;flex:1"></div><div class="ebc-bar estimate" style="height:${eH}px;flex:1"></div></div><div class="ebc-qlabel">${r.date.slice(0,7)}</div>`;
+      barsEl.appendChild(grp);
+    });
+  }catch(e){document.getElementById('est').innerHTML='<div class="banner berror">✗ Connection error. Check your internet and try again.</div>';}
+  finally{btn.textContent='Load Earnings';btn.disabled=false;}
+}
+</script>
+
+
+
+
+</body></html>
